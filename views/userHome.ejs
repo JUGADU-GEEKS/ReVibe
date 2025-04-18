@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoBounce Market</title>
+    <link rel="stylesheet" href="/stylesheets/userHome.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13A7 7 0 0 1 4 6A7 7 0 0 1 11 4A7 7 0 0 1 11 20Z"></path>
+                    <path d="M18 6C18 7 17 8 16 8S14 7 14 6 15 4 16 4 18 5 18 6Z"></path>
+                    <path d="M18 14C18 15 17 16 16 16S14 15 14 14 15 12 16 12 18 13 18 14Z"></path>
+                    <path d="M6 18C6 19 5 20 4 20S2 19 2 18 3 16 4 16 6 17 6 18Z"></path>
+                </svg>
+                <span>EcoBounce</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Shop</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            <div class="nav-icons">
+                <button class="icon-btn"><i class="search-icon">🔍</i></button>
+                <button class="icon-btn"><i class="user-icon">👤</i></button>
+                <button class="icon-btn cart-btn">
+                    <i class="cart-icon">🛒</i>
+                    <span class="cart-count">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="animate-title">Sustainable Style</h1>
+            <p class="animate-text">Discover our curated collection of recycled and upcycled products that help reduce your carbon footprint.</p>
+            <div class="hero-buttons">
+                <button class="primary-btn">Shop Recycled</button>
+                <button class="secondary-btn">Learn More</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products" id="products">
+        <div class="container">
+            <h2 class="section-title">Sustainable Products</h2>
+            <div class="products-grid">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Background Elements -->
+    <div class="scene">
+        <div class="cube" style="top: 20%; left: 10%;">
+            <div class="cube-face front"></div>
+            <div class="cube-face back"></div>
+            <div class="cube-face right"></div>
+            <div class="cube-face left"></div>
+            <div class="cube-face top"></div>
+            <div class="cube-face bottom"></div>
+        </div>
+        <div class="glow" style="top: 20%; left: 20%"></div>
+        <div class="glow" style="top: 70%; left: 70%"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="/scripts/userHome.js"></script>
+</body>
+</html>

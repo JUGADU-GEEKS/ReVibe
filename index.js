@@ -45,7 +45,6 @@ app.get('/verifyotp', (req, res) => {
 
     res.render('verifyotp', { error: null }); // Render with no error initially
 });
-// GET /resendotp
 app.get('/resendotp', async (req, res) => {
     const sessionUser = req.session.user;
 
@@ -81,6 +80,9 @@ app.get('/resendotp', async (req, res) => {
         res.status(500).send("Something went wrong.");
     }
 });
+app.get('/home', (req,res)=>{
+    res.render('userHome')
+})
 
 
 

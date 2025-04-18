@@ -1,59 +1,349 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoShop - Sustainable Shopping</title>
+    <title>ReVibe | Sustainable Marketplace</title>
     <link rel="stylesheet" href="/stylesheets/landingPage.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
 </head>
 <body>
-    <div class="animated-background">
-        <!-- Animated elements -->
-        <div class="floating-circle circle-1"></div>
-        <div class="floating-circle circle-2"></div>
-        <div class="floating-leaf leaf-1">
-            <svg viewBox="0 0 24 24" class="leaf-icon">
-                <path d="M17.5,4.5c-2.5,2.5-2.5,5.5-2.5,7.5c0,2,0,7.5-7.5,7.5c0-10-2.5-15,10-15 M15,14c0,0-5,0-5-5"/>
-            </svg>
-        </div>
-        <div class="glowing-orb orb-1"></div>
-        
-        <!-- Content -->
-        <div class="container">
-            <div class="logo-container fade-in">
-                <div class="logo">
-                    <svg viewBox="0 0 24 24" class="leaf-icon pulse">
-                        <path d="M17.5,4.5c-2.5,2.5-2.5,5.5-2.5,7.5c0,2,0,7.5-7.5,7.5c0-10-2.5-15,10-15 M15,14c0,0-5,0-5-5"/>
-                    </svg>
-                </div>
-            </div>
-            
-            <div class="text-center fade-in">
-                <h1>Welcome to <span class="gradient-text">EcoShop</span></h1>
-                <p class="subtitle">Sustainable shopping for a better tomorrow</p>
-            </div>
-            
-            <div class="buttons-container fade-in">
-                <a href="user-login.html" class="button primary slide-in-right">
-                    Customer Login
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M5 12h14m-7-7l7 7-7 7"/>
-                    </svg>
-                </a>
-                <a href="user-signup.html" class="button outline">Sign Up</a>
-            </div>
-            
-            <div class="links fade-in">
-                <a href="admin-login.html" class="badge">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                    Access Admin Portal
-                </a>
-            </div>
+    <!-- Glow Effect -->
+    <div class="glow" id="glow"></div>
+    
+    <!-- Floating Objects Background -->
+    <div class="floating-objects" id="floatingObjects"></div>
+    
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Main Content -->
+    <div class="content-container">
+        <h1 class="tagline">Give Products a <span>Second Life</span> with ReVibe</h1>
+        <div class="buttons-container">
+            <button class="btn btn-user" id="userBtn">User Login</button>
+            <button class="btn btn-admin" id="adminBtn">Admin Login</button>
         </div>
     </div>
-    <script src="/scripts/landingPage.js"></script>
+
+    <script>
+        // Wait for DOM content to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create floating recycled objects
+            createFloatingObjects();
+            
+            // Create particles
+            createParticles();
+            
+            // Initialize animations
+            initAnimations();
+            
+            // Initialize button events
+            initButtonEvents();
+        });
+        
+        // Create floating recycled objects in the background
+        function createFloatingObjects() {
+            const container = document.getElementById('floatingObjects');
+            const objectTypes = ['♻️', '🍃', '🌱', '📦', '👕', '📱', '🪑', '📚'];
+            const numObjects = 15;
+            
+            for (let i = 0; i < numObjects; i++) {
+                const object = document.createElement('div');
+                object.className = 'floating-object';
+                object.textContent = objectTypes[Math.floor(Math.random() * objectTypes.length)];
+                object.style.fontSize = `${Math.random() * 2 + 1}rem`;
+                object.style.left = `${Math.random() * 100}%`;
+                object.style.top = `${Math.random() * 100}%`;
+                
+                container.appendChild(object);
+                
+                // Animate each floating object
+                gsap.to(object, {
+                    x: `${Math.random() * 200 - 100}`,
+                    y: `${Math.random() * 200 - 100}`,
+                    duration: Math.random() * 30 + 20,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+                
+                // Also rotate some objects
+                if (Math.random() > 0.5) {
+                    gsap.to(object, {
+                        rotation: 360,
+                        duration: Math.random() * 30 + 20,
+                        repeat: -1,
+                        ease: "none"
+                    });
+                }
+            }
+        }
+        
+        // Create particle effects
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const numParticles = 50;
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 5 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.opacity = Math.random() * 0.5;
+                
+                // Random starting position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                container.appendChild(particle);
+                
+                // Animate particles
+                gsap.to(particle, {
+                    y: `${Math.random() * 100 - 50}`,
+                    x: `${Math.random() * 100 - 50}`,
+                    opacity: Math.random() * 0.7,
+                    duration: Math.random() * 20 + 10,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+        
+        // Initialize animations
+        function initAnimations() {
+            // Initial glow animation
+            gsap.to('#glow', {
+                opacity: 0.7,
+                duration: 3,
+                ease: "power2.inOut",
+                repeat: -1,
+                yoyo: true
+            });
+            
+            // Move glow around subtly
+            gsap.to('#glow', {
+                x: 50,
+                y: -30,
+                duration: 15,
+                ease: "sine.inOut",
+                repeat: -1,
+                yoyo: true
+            });
+            
+            // Tagline entrance animation
+            gsap.to('.tagline', {
+                opacity: 1,
+                y: 0,
+                duration: 1.5,
+                ease: "back.out(1.2)",
+                delay: 0.5
+            });
+            
+            // Split the tagline text for character animation
+            const tagline = document.querySelector('.tagline');
+            const text = tagline.innerHTML;
+            let newText = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                if (text[i] === '<') {
+                    // Handle the span element
+                    const endIndex = text.indexOf('>', i);
+                    const spanEnd = text.indexOf('</span>', endIndex);
+                    const spanContent = text.substring(endIndex + 1, spanEnd);
+                    
+                    newText += `<span class="highlight">${spanContent}</span>`;
+                    i = spanEnd + 6; // Skip to after </span>
+                } else {
+                    newText += `<span class="char">${text[i]}</span>`;
+                }
+            }
+            
+            tagline.innerHTML = newText;
+            
+            // Animate characters
+            gsap.from('.char', {
+                opacity: 0,
+                y: 20,
+                duration: 0.5,
+                stagger: 0.03,
+                ease: "back.out(1.7)",
+                delay: 0.7
+            });
+            
+            // Animate highlight
+            gsap.from('.highlight', {
+                color: '#ffffff',
+                duration: 2,
+                delay: 1.5,
+                ease: "power2.inOut"
+            });
+            
+            // Buttons entrance animation
+            gsap.to('.buttons-container', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power3.out",
+                delay: 1.5
+            });
+            
+            // Staggered button appearance
+            gsap.from('.btn', {
+                scale: 0.8,
+                duration: 0.7,
+                stagger: 0.2,
+                ease: "elastic.out(1, 0.3)",
+                delay: 1.8
+            });
+        }
+        
+        // Initialize button events
+        function initButtonEvents() {
+            const userBtn = document.getElementById('userBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            
+            // User button hover effect
+            userBtn.addEventListener('mouseenter', () => {
+                gsap.to(userBtn, {
+                    scale: 1.05,
+                    duration: 0.3
+                });
+                
+                // Create pulse effect
+                const pulse = document.createElement('div');
+                pulse.style.position = 'absolute';
+                pulse.style.top = '50%';
+                pulse.style.left = '50%';
+                pulse.style.transform = 'translate(-50%, -50%)';
+                pulse.style.width = '100%';
+                pulse.style.height = '100%';
+                pulse.style.borderRadius = '50px';
+                pulse.style.background = 'rgba(76, 175, 80, 0.3)';
+                pulse.style.zIndex = '-1';
+                
+                userBtn.appendChild(pulse);
+                
+                gsap.to(pulse, {
+                    opacity: 0,
+                    scale: 1.5,
+                    duration: 0.8,
+                    onComplete: () => {
+                        pulse.remove();
+                    }
+                });
+            });
+            
+            userBtn.addEventListener('mouseleave', () => {
+                gsap.to(userBtn, {
+                    scale: 1,
+                    duration: 0.3
+                });
+            });
+            
+            // Admin button hover effect
+            adminBtn.addEventListener('mouseenter', () => {
+                gsap.to(adminBtn, {
+                    scale: 1.05,
+                    duration: 0.3
+                });
+                
+                // Create stroke effect
+                gsap.to(adminBtn, {
+                    boxShadow: '0 0 15px rgba(76, 175, 80, 0.7)',
+                    duration: 0.5
+                });
+            });
+            
+            adminBtn.addEventListener('mouseleave', () => {
+                gsap.to(adminBtn, {
+                    scale: 1,
+                    boxShadow: 'none',
+                    duration: 0.3
+                });
+            });
+            
+            // Click animations
+            userBtn.addEventListener('click', () => {
+                gsap.to(userBtn, {
+                    scale: 0.95,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 1
+                });
+                
+                // Flash effect
+                const flash = document.createElement('div');
+                flash.style.position = 'fixed';
+                flash.style.top = '0';
+                flash.style.left = '0';
+                flash.style.width = '100vw';
+                flash.style.height = '100vh';
+                flash.style.background = 'white';
+                flash.style.opacity = '0';
+                flash.style.zIndex = '10';
+                document.body.appendChild(flash);
+                
+                gsap.to(flash, {
+                    opacity: 0.3,
+                    duration: 0.1,
+                    onComplete: () => {
+                        gsap.to(flash, {
+                            opacity: 0,
+                            duration: 0.3,
+                            onComplete: () => {
+                                flash.remove();
+                                // Redirect (commented out for demo)
+                                // window.location.href = 'user-login.html';
+                                console.log('User login clicked');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            adminBtn.addEventListener('click', () => {
+                gsap.to(adminBtn, {
+                    scale: 0.95,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 1
+                });
+                
+                // Ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.position = 'absolute';
+                ripple.style.top = '50%';
+                ripple.style.left = '50%';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(76, 175, 80, 0.7)';
+                ripple.style.zIndex = '-1';
+                
+                adminBtn.appendChild(ripple);
+                
+                gsap.to(ripple, {
+                    width: '300px',
+                    height: '300px',
+                    opacity: 0,
+                    duration: 0.8,
+                    onComplete: () => {
+                        ripple.remove();
+                        // Redirect (commented out for demo)
+                        // window.location.href = 'admin-login.html';
+                        console.log('Admin login clicked');
+                    }
+                });
+            });
+        }
+        userBtn.addEventListener('click', ()=>{
+            window.location.href = '/login'
+        })
+    </script>
 </body>
 </html>

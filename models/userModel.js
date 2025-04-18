@@ -11,14 +11,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 const userSchema = mongoose.Schema({
-    username: String,
-    image: String,
+    fullname: String,
     email: String,
     password: String,
-    posts: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'post'
-    }],
+    otp: String,
+    verified: { type: Boolean, default: false }
+
 });
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("User", userSchema);

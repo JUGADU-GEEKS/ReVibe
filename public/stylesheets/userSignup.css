@@ -106,13 +106,13 @@ body {
     color: var(--accent-green);
 }
 
-/* Login Form */
-.login-card {
+/* Signup Form */
+.signup-card {
     background-color: var(--dark-card);
     border-radius: 15px;
     padding: 3rem;
     width: 100%;
-    max-width: 450px;
+    max-width: 500px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
     overflow: hidden;
@@ -120,7 +120,7 @@ body {
     margin-bottom: 2rem;
 }
 
-.login-card::before {
+.signup-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -188,27 +188,28 @@ body {
     top: 2.3rem;
 }
 
-.remember-forgot {
+.terms {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 0.7rem;
     margin-bottom: 1.5rem;
-    font-size: 0.9rem;
 }
 
-.remember-me {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.terms input {
+    margin-top: 0.3rem;
+}
+
+.terms-text {
+    font-size: 0.9rem;
     color: var(--text-secondary);
 }
 
-.forgot-password {
+.terms-text a {
     color: var(--accent-green);
     text-decoration: none;
 }
 
-.login-btn {
+.signup-btn {
     width: 100%;
     padding: 1rem;
     border-radius: 8px;
@@ -223,12 +224,12 @@ body {
     overflow: hidden;
 }
 
-.login-btn:hover {
+.signup-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
 }
 
-.login-btn::before {
+.signup-btn::before {
     content: '';
     position: absolute;
     top: 0;
@@ -239,11 +240,11 @@ body {
     transition: left 0.7s;
 }
 
-.login-btn:hover::before {
+.signup-btn:hover::before {
     left: 100%;
 }
 
-.social-login {
+.social-signup {
     text-align: center;
     margin-top: 2rem;
 }
@@ -300,15 +301,15 @@ body {
     transform: translateY(-3px);
 }
 
-/* Register Link */
-.register-link {
+/* Login Link */
+.login-link {
     margin-top: 2rem;
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
-.register-link a {
+.login-link a {
     color: var(--accent-green);
     text-decoration: none;
     font-weight: 500;
@@ -325,7 +326,7 @@ body {
 
 /* Responsive */
 @media (max-width: 600px) {
-    .login-card {
+    .signup-card {
         padding: 2rem;
     }
     

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCycle | OTP Verification</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <style>
+        /* Base Styles */
+        :root {
+            --dark-bg: #0f0f13;
+            --dark-card: #1a1a22;
+            --accent-green: #4caf50;
+            --accent-teal: #009688;
+            --accent-purple: #9c27b0;
+            --accent-blue: #2196f3;
+            --accent-orange: #ff5722;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --input-bg: #252530;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+
+        /* 3D Objects in Background */
+        .scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            perspective: 1000px;
+        }
+
+        .object-3d {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        .cube {
+            width: 80px;
+            height: 80px;
+            transform-style: preserve-3d;
+            opacity: 0.15;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: visible;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid;
+            font-size: 24px;
+        }
+
+        .front {
+            transform: translateZ(40px);
+        }
+
+        .back {
+            transform: rotateY(180deg) translateZ(40px);
+        }
+
+        .right {
+            transform: rotateY(90deg) translateZ(40px);
+        }
+
+        .left {
+            transform: rotateY(-90deg) translateZ(40px);
+        }
+
+        .top {
+            transform: rotateX(90deg) translateZ(40px);
+        }
+
+        .bottom {
+            transform: rotateX(-90deg) translateZ(40px);
+        }
+
+        /* Flying Colorful Particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(2px);
+        }
+
+        /* Glow Effect */
+        .glow {
+            position: fixed;
+            width: 50vw;
+            height: 50vh;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, rgba(15, 15, 19, 0) 70%);
+            z-index: -1;
+            filter: blur(30px);
+        }
+
+        /* Page Container */
+        .page-container {
+            width: 100%;
+            padding: 5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: var(--accent-green);
+        }
+
+        /* OTP Card */
+        .otp-card {
+            background-color: var(--dark-card);
+            border-radius: 15px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            margin-bottom: 2rem;
+        }
+
+        .otp-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg,
+                    var(--accent-green),
+                    var(--accent-blue),
+                    var(--accent-purple),
+                    var(--accent-orange),
+                    var(--accent-teal));
+            background-size: 400% 100%;
+            animation: gradient-shift 15s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .card-accent {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(15, 15, 19, 0) 70%);
+            filter: blur(20px);
+            opacity: 0.5;
+        }
+
+        .form-title {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            max-width: 90%;
+        }
+
+        /* OTP Input Container */
+        .otp-input-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .otp-input {
+            width: 55px;
+            height: 65px;
+            border-radius: 12px;
+            background-color: var(--input-bg);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            caret-color: var(--accent-green);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+            transform: translateY(-5px);
+        }
+
+        /* Timer */
+        .timer-container {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        /* Verify Button */
+        .verify-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+            color: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .verify-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.7s;
+        }
+
+        .verify-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Resend Link */
+        .resend-link {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .resend-link a {
+            color: var(--accent-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .resend-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-green), transparent);
+            opacity: 0.1;
+            filter: blur(20px);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .otp-card {
+                padding: 2rem;
+            }
+
+            .form-title {
+                font-size: 1.8rem;
+            }
+
+            .otp-input {
+                width: 45px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Objects Scene -->
+    <div class="scene" id="scene"></div>
+
+    <!-- Glow Effect -->
+    <div class="glow" id="glow1"></div>
+    <div class="glow" id="glow2"
+        style="background: radial-gradient(circle, rgba(33, 150, 243, 0.15) 0%, rgba(15, 15, 19, 0) 70%);"></div>
+
+    <!-- Page Container -->
+    <div class="page-container">
+        <button class="back-button" onclick="window.history.back()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back
+        </button>
+
+        <div class="otp-card" id="otpCard">
+            <!-- Card Accent Colors -->
+            <div class="card-accent"
+                style="top: -50px; right: -50px; background: radial-gradient(circle, rgba(156, 39, 176, 0.1) 0%, rgba(15, 15, 19, 0) 70%);">
+            </div>
+            <div class="card-accent"
+                style="bottom: -50px; left: -50px; background: radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, rgba(15, 15, 19, 0) 70%);">
+            </div>
+
+            <h1 class="form-title">Verify Your Email</h1>
+            <p class="form-subtitle">We've sent a 6-digit verification code to your email address. Enter the code below
+                to confirm your identity.</p>
+
+            <form id="otpForm" action="/verifyotp" method="POST">
+                <div class="otp-input-container" id="otpInputContainer">
+                    <input type="text" id="otp1" name="otp1" class="otp-input" maxlength="1" autofocus>
+                    <input type="text" id="otp2" name="otp2" class="otp-input" maxlength="1">
+                    <input type="text" id="otp3" name="otp3" class="otp-input" maxlength="1">
+                    <input type="text" id="otp4" name="otp4" class="otp-input" maxlength="1">
+                    <input type="text" id="otp5" name="otp5" class="otp-input" maxlength="1">
+                    <input type="text" id="otp6" name="otp6" class="otp-input" maxlength="1">
+                </div>
+
+                <div class="timer-container">
+                    <p class="timer-text">Code expires in 10 minutes</p>
+                </div>
+
+                <button type="submit" class="verify-btn" id="verifyBtn">
+                    Verify Code
+                </button>
+                <% if (error) { %>
+                    <p style="color: red;">
+                        <%= error %>
+                    </p>
+                    <% } else { %>
+                        <p style="color: green;">Everything looks good!</p>
+                        <% } %>
+
+
+                <div class="resend-link">
+                    Didn't receive the code? <a href="#" id="resendLink">Resend Code</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Wait for DOM content to load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize colorful 3D objects
+            createColorful3DObjects();
+
+            // Create flying particles
+            createParticles();
+
+            // Initialize animations
+            initAnimations();
+
+            // Initialize OTP functionality
+            initOTPFunctionality();
+
+            // Start countdown timer
+            startCountdownTimer();
+
+            // Make OTP input boxes stand out on page load
+            highlightOtpBoxes();
+        });
+
+        // Highlight OTP boxes initially to make them more prominent
+        function highlightOtpBoxes() {
+            const inputs = document.querySelectorAll('.otp-input');
+
+            // Pulse animation to draw attention
+            gsap.fromTo(inputs,
+                { boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)' },
+                {
+                    boxShadow: '0 0 20px rgba(76, 175, 80, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3)',
+                    duration: 1.5,
+                    repeat: 2,
+                    yoyo: true,
+                    stagger: 0.1
+                }
+            );
+        }
+
+        // Create 3D Objects with different colors
+        function createColorful3DObjects() {
+            const scene = document.getElementById('scene');
+            const numObjects = 8;
+
+            const recycleSymbols = ['♻️', '🍃', '🌱', '📦', '👕', '💧', '🔋', '🌿'];
+            const colors = [
+                'var(--accent-green)',
+                'var(--accent-teal)',
+                'var(--accent-blue)',
+                'var(--accent-purple)',
+                'var(--accent-orange)'
+            ];
+
+            for (let i = 0; i < numObjects; i++) {
+                // Create a cube
+                const cubeWrapper = document.createElement('div');
+                cubeWrapper.className = 'object-3d';
+                cubeWrapper.style.left = `${Math.random() * 80 + 10}%`;
+                cubeWrapper.style.top = `${Math.random() * 80 + 10}%`;
+
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+
+                // Pick a random color for this cube
+                const cubeColor = colors[Math.floor(Math.random() * colors.length)];
+
+                // Create cube faces
+                const faces = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+                faces.forEach(face => {
+                    const cubeFace = document.createElement('div');
+                    cubeFace.className = `cube-face ${face}`;
+                    cubeFace.textContent = recycleSymbols[i % recycleSymbols.length];
+                    cubeFace.style.borderColor = cubeColor;
+                    cube.appendChild(cubeFace);
+                });
+
+                cubeWrapper.appendChild(cube);
+                scene.appendChild(cubeWrapper);
+
+                // Animate the cube
+                gsap.to(cubeWrapper, {
+                    x: Math.random() * 300 - 150,
+                    y: Math.random() * 300 - 150,
+                    z: Math.random() * 300 - 150,
+                    duration: 20 + Math.random() * 15,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+
+                gsap.to(cube, {
+                    rotationY: 360,
+                    rotationX: 360,
+                    duration: 25 + Math.random() * 20,
+                    repeat: -1,
+                    ease: "none"
+                });
+            }
+        }
+
+        // Create flying colorful particles
+        function createParticles() {
+            const numParticles = 30;
+            const colors = [
+                'rgba(76, 175, 80, 0.6)', // Green
+                'rgba(0, 150, 136, 0.6)',  // Teal
+                'rgba(33, 150, 243, 0.6)', // Blue
+                'rgba(156, 39, 176, 0.6)', // Purple
+                'rgba(255, 87, 34, 0.6)'   // Orange
+            ];
+
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // Random size between 5 and 20px
+                const size = Math.random() * 15 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                // Random color
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random starting position
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+
+                document.body.appendChild(particle);
+
+                // Animate particle
+                gsap.to(particle, {
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 200 - 100,
+                    opacity: Math.random() * 0.5 + 0.2,
+                    duration: Math.random() * 20 + 10,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+
+        // Initialize animations
+        function initAnimations() {
+            // Multiple glow animations
+            gsap.to('#glow1', {
+                x: 150,
+                y: -100,
+                duration: 20,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            gsap.to('#glow2', {
+                x: -150,
+                y: 100,
+                duration: 25,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            // Card entrance animation
+            gsap.from('#otpCard', {
+                y: 100,
+                opacity: 0,
+                rotationX: 10,
+                duration: 1.2,
+                ease: "power3.out"
+            });
+
+            // OTP inputs staggered animation
+            gsap.from('.otp-input', {
+                y: 30,
+                opacity: 0,
+                scale: 0.8,
+                duration: 0.8,
+                stagger: 0.1,
+                delay: 0.6,
+                ease: "back.out(1.7)"
+            });
+
+            // Other elements animation
+            gsap.from('.timer-container, .verify-btn, .resend-link', {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                delay: 1.2,
+                ease: "power2.out"
+            });
+
+            // Add hover effects to the card
+            const card = document.getElementById('otpCard');
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / 30;
+                const rotateY = (centerX - x) / 30;
+
+                gsap.to(card, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    transformPerspective: 1000,
+                    transformOrigin: "center center"
+                });
+            });
+
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotateX: 0,
+                    rotateY: 0,
+                    duration: 0.8,
+                    ease: "power3.out"
+                });
+            });
+        }
+
+        // Initialize OTP functionality
+        function initOTPFunctionality() {
+            const inputs = document.querySelectorAll('.otp-input');
+
+            inputs.forEach((input, index) => {
+                // Focus and scale animation
+                input.addEventListener('focus', () => {
+                    gsap.to(input, {
+                        scale: 1.1,
+                        y: -5,
+                        boxShadow: '0 15px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(76, 175, 80, 0.5)',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+
+                input.addEventListener('blur', () => {
+                    gsap.to(input, {
+                        scale: 1,
+                        y: 0,
+                        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+
+                // Auto-focus next input
+                input.addEventListener('input', function (e) {
+                    // Show a quick success flash when a digit is entered
+                    if (this.value.length === 1) {
+                        gsap.fromTo(this,
+                            { borderColor: 'var(--accent-green)' },
+                            {
+                                borderColor: 'rgba(255, 255, 255, 0.15)',
+                                duration: 1,
+                                ease: "power2.out"
+                            }
+                        );
+                    }
+
+                    if (this.value.length === this.maxLength) {
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        } else {
+                            this.blur();
+                            // All inputs filled, flash the verify button
+                            gsap.fromTo('#verifyBtn',
+                                { backgroundColor: 'var(--accent-green)' },
+                                {
+                                    backgroundColor: 'var(--accent-teal)',
+                                    duration: 0.5,
+                                    yoyo: true,
+                                    repeat: 3
+                                }
+                            );
+                        }
+                    }
+                });
+
+                // Handle backspace
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                // Filter non-numeric input
+                input.addEventListener('keypress', function (e) {
+                    const key = e.key;
+                    const regex = /^[0-9]$/;
+
+                    if (!regex.test(key)) {
+                        e.preventDefault();
+                        // Shake animation for invalid input
+                        gsap.to(this, {
+                            x: 10,
+                            duration: 0.1,
+                            repeat: 3,
+                            yoyo: true
+                        });
+                    }
+                });
+
+                // Handle paste event
+                input.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text').trim();
+
+                    // Check if paste data is numeric and has correct length
+                    if (/^\d+$/.test(pasteData)) {
+                        // If exactly 6 digits, distribute across all inputs
+                        if (pasteData.length === 6) {
+                            for (let i = 0; i < inputs.length; i++) {
+                                inputs[i].value = pasteData.charAt(i);
+                            }
+                            inputs[inputs.length - 1].blur();
+
+                            // Flash all inputs with success color
+                            inputs.forEach((input, idx) => {
+                                gsap.fromTo(input,
+                                    { borderColor: 'var(--accent-green)' },
+                                    {
+                                        borderColor: 'rgba(255, 255, 255, 0.15)',
+                                        delay: idx * 0.1,
+                                        duration: 1
+                                    }
+                                );
+                            });
+
+                            // Flash verify button
+                            gsap.fromTo('#verifyBtn',
+                                { backgroundColor: 'var(--accent-green)' },
+                                {
+                                    backgroundColor: 'var(--accent-teal)',
+                                    duration: 0.5,
+                                    yoyo: true,
+                                    repeat: 3
+                                }
+                            );
+                        } else {
+                            // If not exactly 6 digits, fill as many inputs as possible
+                            for (let i = 0; i < Math.min(pasteData.length, inputs.length); i++) {
+                                inputs[index + i < inputs.length ? index + i : inputs.length - 1].value = pasteData.charAt(i);
+                            }
+                        }
+                    } else {
+                        // Shake animation for invalid paste
+                        gsap.to('#otpInputContainer', {
+                            x: 10,
+                            duration: 0.1,
+                            repeat: 5,
+                            yoyo: true
+                        });
+                    }
+                });
+            });
+
+            // Resend code link animation
+            const resendLink = document.getElementById('resendLink');
+
+            resendLink.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                // Reset timer
+                startCountdownTimer();
+
+                // Reset input fields
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                inputs[0].focus();
+
+                // Disable link temporarily
+                resendLink.style.opacity = '0.5';
+                resendLink.style.pointerEvents = 'none';
+
+                // Show success message
+                const originalText = resendLink.textContent;
+                resendLink.textContent = 'Code sent!';
+
+                // Pulsing animation
+                gsap.fromTo(resendLink,
+                    { scale: 1 },
+                    { scale: 1.2, duration: 0.3, yoyo: true, repeat: 1 }
+                );
+            }
+        }
+            
+    </script>

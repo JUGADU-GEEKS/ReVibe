@@ -83,7 +83,9 @@ app.get('/resendotp', async (req, res) => {
 app.get('/home', (req,res)=>{
     res.render('userHome')
 })
-
+app.get('/adminLogin', (req,res)=>{
+    res.render('adminLogin', {error: null})
+})
 
 
 //POST Requests Routes
@@ -235,7 +237,17 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/adminLogin', (req,res)=>{
+    const {email, password} = req.body;
+    if(email=='admin@admin.com'){
+        if(password=='admin1234'){
+            return res.render("Sucess");
+        }
+        return res.render("wrong");
+    }
+    return res.render("worng");
 
+})
 
 //Listening to port 5000
 app.listen(5000)

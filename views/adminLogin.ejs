@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReVibe | Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/userLogin.css">
+</head>
+<body>
+    <!-- 3D Objects Scene -->
+    <div class="scene" id="scene"></div>
+    
+    <!-- Glow Effect -->
+    <div class="glow" id="glow"></div>
+    
+    <!-- Page Container -->
+    <div class="page-container">
+        <button class="back-button" onclick="window.history.back()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </button>
+        
+        <div class="login-card" id="loginCard">
+            <h1 class="form-title">Welcome Back Admin</h1>
+            <p class="form-subtitle">Add the Products</p>
+            
+            <form id="loginForm" action="/adminLogin" method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="name@example.com">
+                    <span class="input-icon">✉️</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password">
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">👁️</button>
+                </div>
+                
+                <div class="remember-forgot">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberCheck">
+                        <label for="rememberCheck">Remember me</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Log In
+                </button>
+                <% if (error) { %>
+                    <p style="color: red;">
+                        <%= error %>
+                    </p>
+                    <% } else { %>
+                        <p style="color: green;">Everything looks good!</p>
+                        <% } %>
+    </div>
+
+    <script>
+        // Initialize GSAP
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Wait for DOM content to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize 3D objects
+            create3DObjects();
+            
+            // Create floating elements
+            createFloatingElements();
+            
+            // Initialize animations
+            initAnimations();
+            
+            // Initialize form interactions
+            initFormInteractions();
+        });
+        
+        // Create 3D Cubes
+        function create3DObjects() {
+            const scene = document.getElementById('scene');
+            const numObjects = 5;
+            
+            const recycleSymbols = ['♻️', '🍃', '🌱', '📦', '👕'];
+            
+            for (let i = 0; i < numObjects; i++) {
+                // Create a cube
+                const cubeWrapper = document.createElement('div');
+                cubeWrapper.className = 'object-3d';
+                cubeWrapper.style.left = `${Math.random() * 80 + 10}%`;
+                cubeWrapper.style.top = `${Math.random() * 80 + 10}%`;
+                
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+                
+                // Create cube faces
+                const faces = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+                faces.forEach(face => {
+                    const cubeFace = document.createElement('div');
+                    cubeFace.className = `cube-face ${face}`;
+                    cubeFace.textContent = recycleSymbols[i % recycleSymbols.length];
+                    cube.appendChild(cubeFace);
+                });
+                
+                cubeWrapper.appendChild(cube);
+                scene.appendChild(cubeWrapper);
+                
+                // Animate the cube
+                gsap.to(cubeWrapper, {
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 200 - 100,
+                    z: Math.random() * 200 - 100,
+                    duration: 20 + Math.random() * 10,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+                
+                gsap.to(cube, {
+                    rotationY: 360,
+                    rotationX: 360,
+                    duration: 30 + Math.random() * 20,
+                    repeat: -1,
+                    ease: "none"
+                });
+            }
+        }
+        
+        // Create floating elements
+        function createFloatingElements() {
+            const container = document.body;
+            const numElements = 8;
+            
+            for (let i = 0; i < numElements; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                
+                const size = Math.random() * 200 + 100;
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.top = `${Math.random() * 100}%`;
+                
+                container.appendChild(element);
+                
+                // Animate floating elements
+                gsap.to(element, {
+                    x: Math.random() * 100 - 50,
+                    y: Math.random() * 100 - 50,
+                    duration: Math.random() * 20 + 10,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+        
+        // Initialize animations
+        function initAnimations() {
+            // Glow animation
+            gsap.to('#glow', {
+                x: 100,
+                y: -50,
+                duration: 15,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            
+            // Card entrance animation
+            gsap.from('#loginCard', {
+                y: 100,
+                opacity: 0,
+                rotationX: 10,
+                duration: 1.2,
+                ease: "power3.out"
+            });
+            
+            // Form elements staggered animation
+            gsap.from('.form-group, .remember-forgot, .social-login', {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                delay: 0.6,
+                ease: "power2.out"
+            });
+            
+            // Register link fade in
+            gsap.from('.register-link', {
+                opacity: 0,
+                y: 20,
+                duration: 0.8,
+                delay: 1.8,
+                ease: "power2.out"
+            });
+            
+            // Add hover effects to the card
+            const card = document.getElementById('loginCard');
+            
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 30;
+                const rotateY = (centerX - x) / 30;
+                
+                gsap.to(card, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    transformPerspective: 1000,
+                    transformOrigin: "center center"
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotateX: 0,
+                    rotateY: 0,
+                    duration: 0.8,
+                    ease: "power3.out"
+                });
+            });
+        }
+        
+        // Initialize form interactions
+        function initFormInteractions() {
+            const inputs = document.querySelectorAll('.form-input');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    gsap.to(input, {
+                        scale: 1.02,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+                
+                input.addEventListener('blur', () => {
+                    gsap.to(input, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            });
+            
+            // Button animation
+            const loginBtn = document.getElementById('loginBtn');
+            
+            loginBtn.addEventListener('mouseenter', () => {
+                gsap.to(loginBtn, {
+                    scale: 1.05,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+            
+            loginBtn.addEventListener('mouseleave', () => {
+                gsap.to(loginBtn, {
+                    scale: 1,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+            
+            // Form submission 
+            const loginForm = document.getElementById('loginForm');
+            
+        }
+        
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            
+            const toggle = input.nextElementSibling;
+            toggle.textContent = input.type === 'password' ? '👁️' : '👁️‍🗨️';
+        }
+    </script>
+</body>
+</html>

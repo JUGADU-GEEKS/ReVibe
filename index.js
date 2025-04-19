@@ -11,17 +11,18 @@ const Product = require('./models/productModel');
 const { isValidPassword, generateOtp } = require('./utils');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
-// Configure multer for image upload
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Configure multer for memory storage (for Cloudinary upload)
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // app.use for loading json and static files
@@ -33,7 +34,7 @@ app.use(cookieParser());
 
 // Setup session middleware (you should do this in your main app.js or index.js)
 app.use(session({
-    secret: 'yourSecretKey',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false
 }));
@@ -50,9 +51,9 @@ const isAdmin = (req, res, next) => {
     }
 };
 // PayPal Credentials (replace with your actual credentials)
-const PAYPAL_CLIENT_ID = 'ASPDjnc1fJ8hnRluZHgFVSB4pXWQQBd4P5duHEEcMKmgUthBx2F8RJp2AXaX6ZdnMHB86WuVOQj888gC';
-const PAYPAL_SECRET = 'EMMwjFk0COYOKsIOeRR18qB8-aM0NH38amTbIW8hmXmn-b470QY97qfczU7qUaUZ2CqX2-Rb1_IPqfJP';
-const PAYPAL_API = 'https://api-m.sandbox.paypal.com';
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
+const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
+const PAYPAL_API = process.env.PAYPAL_API_URL;
 
 //GET Request Routes
 app.get('/', (req, res) => {
@@ -72,7 +73,7 @@ app.get('/verifyotp', (req, res) => {
     res.render('verifyotp', { error: null }); // Render with no error initially
 });
 app.get('/leaderboard', isLoggedIn, async (req, res) => {
-    const users = await User.find().sort({ carbonSaved: -1 });
+    const users = await User.find().sort({ totalCarbonFootprint: -1 });
     const user = await User.findOne({ email: req.user.email })
     // Check if user and user.cart exist
     let count = 0;
@@ -220,13 +221,27 @@ app.post('/cart/remove', isLoggedIn, async (req, res) => {
 app.post('/admin/products', isAdmin, upload.single('image'), async (req, res) => {
     try {
         const { name, material, type, price } = req.body;
-        const imagePath = req.file ? '/uploads/' + req.file.filename : '';
+        let imageUrl = '';
+
+        // Upload image to Cloudinary if a file was provided
+        if (req.file) {
+            // Convert buffer to base64
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+            
+            // Upload to Cloudinary
+            const result = await cloudinary.uploader.upload(dataURI, {
+                resource_type: 'auto',
+                folder: 'webdash_products'
+            });
+            imageUrl = result.secure_url;
+        }
 
         const product = new Product({
             name,
             material,
             type,
-            image: imagePath,
+            image: imageUrl,
             price: parseFloat(price)
         });
 
@@ -267,13 +282,13 @@ async function sendOtp(email, otp) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'buddyystudy@gmail.com',
-            pass: 'xvnn xhef wzsn hurf'
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
         }
     });
 
     await transporter.sendMail({
-        from: '"ReVibe" <your_email@gmail.com>',
+        from: '"ReVibe" <${process.env.EMAIL_USER}>',
         to: email,
         subject: 'Verify your OTP',
         text: `Your OTP is ${otp}`
@@ -361,11 +376,28 @@ app.post('/verifyotp', async (req, res) => {
         if (user.otp === enteredOtp) {
             await User.updateOne({ email }, { $set: { verified: true } });
 
-            req.session.user = {
-                fullname: user.full_name,
-                email: user.email,
-                contact: user.contact
-            };
+            // Create session
+        req.session.user = {
+            userId: user._id,
+            email: user.email,
+            fullname: user.fullname
+        };
+
+        // Generate JWT token
+        const token = jwt.sign({
+            userId: user._id,
+            email: user.email
+        }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+        // Set both session and cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+
+        console.log('Session and cookie set for user:', user.email);
 
             return res.redirect('/home'); // Or wherever you want to redirect after successful OTP verification
         } else {
@@ -409,7 +441,7 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({
             userId: user._id,
             email: user.email
-        }, "kunal", { expiresIn: '24h' });
+        }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
         // Set both session and cookie
         res.cookie('token', token, {
@@ -552,7 +584,7 @@ app.get('/purchased', async (req, res) => {
 
     try {
         const user = await User.findById(req.session.user.id).populate('purchased.product');
-        res.render('purchased', { purchased: user.purchased });
+        res.redirect('/profile');
     } catch (error) {
         console.error('Error fetching purchased items:', error);
         res.status(500).send('Error fetching purchased items');
@@ -577,7 +609,7 @@ function isLoggedIn(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(token, "kunal");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('Token verified successfully for user:', decoded.email);
 
         // Set user in request
@@ -623,5 +655,9 @@ app.post('/process-payment', isLoggedIn, async (req, res) => {
     }
 });
 
-//Listening to port 5000
-app.listen(5000)
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+});

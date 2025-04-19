@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpg" href="/ppimages/logo.jpg">
     <title>My Profile | EcoShop</title>
     <style>
         :root {
@@ -537,22 +539,22 @@
             .profile-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .cart-item {
                 grid-template-columns: 90px 1fr 1fr;
                 grid-template-rows: auto auto;
                 gap: 1rem;
             }
-            
+
             .cart-item-img {
                 grid-row: span 2;
             }
-            
+
             .cart-item-quantity {
                 grid-column: 2;
                 grid-row: 2;
             }
-            
+
             .cart-item-price,
             .remove-btn {
                 grid-row: 2;
@@ -565,13 +567,13 @@
             .nav-links {
                 display: none;
             }
-            
+
             .order-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
             }
-            
+
             .order-footer {
                 flex-direction: column;
                 align-items: flex-start;
@@ -606,12 +608,29 @@
             backface-visibility: visible;
         }
 
-        .front { transform: translateZ(50px); }
-        .back { transform: rotateY(180deg) translateZ(50px); }
-        .right { transform: rotateY(90deg) translateZ(50px); }
-        .left { transform: rotateY(-90deg) translateZ(50px); }
-        .top { transform: rotateX(90deg) translateZ(50px); }
-        .bottom { transform: rotateX(-90deg) translateZ(50px); }
+        .front {
+            transform: translateZ(50px);
+        }
+
+        .back {
+            transform: rotateY(180deg) translateZ(50px);
+        }
+
+        .right {
+            transform: rotateY(90deg) translateZ(50px);
+        }
+
+        .left {
+            transform: rotateY(-90deg) translateZ(50px);
+        }
+
+        .top {
+            transform: rotateX(90deg) translateZ(50px);
+        }
+
+        .bottom {
+            transform: rotateX(-90deg) translateZ(50px);
+        }
 
         .glow {
             position: fixed;
@@ -626,6 +645,7 @@
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -644,14 +664,16 @@
                 <li><a href="/home" class="active">Home</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
                 <li><a href="/analytics">Analytics</a></li>
-                <li><a href="#">About Us</a></li>
+                <li><a href="/about">About Us</a></li>
             </ul>
             <div class="nav-icons">
                 <button class="icon-btn"><i class="search-icon">🔍</i></button>
                 <button class="icon-btn"><i class="user-icon">👤</i></button>
                 <button class="icon-btn cart-btn">
                     <i class="cart-icon">🛒</i>
-                    <span class="cart-count"><%= count %></span>
+                    <span class="cart-count">
+                        <%= count %>
+                    </span>
                 </button>
             </div>
         </div>
@@ -668,17 +690,21 @@
                 <!-- Sidebar with User Info -->
                 <div class="profile-sidebar">
                     <div class="avatar-container">
-                        <% const avatarNum = Math.floor(Math.random() * 3) + 1; %>
-                        <img src="/ppimages/<%= avatarNum %>.jpg" alt="User Avatar" class="avatar">
-                        
-                        <h2 class="user-name"><%=user.fullname%></h2>
-                        <span>Eco Enthusiast</span>
+                        <% const avatarNum=Math.floor(Math.random() * 3) + 1; %>
+                            <img src="/ppimages/<%= avatarNum %>.jpg" alt="User Avatar" class="avatar">
+
+                            <h2 class="user-name">
+                                <%=user.fullname%>
+                            </h2>
+                            <span>Eco Enthusiast</span>
                     </div>
 
                     <div class="user-details">
                         <div class="detail-item">
                             <i class="fas fa-envelope detail-icon"></i>
-                            <span><%=user.email%></span>
+                            <span>
+                                <%=user.email%>
+                            </span>
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-map-marker-alt detail-icon"></i>
@@ -694,12 +720,16 @@
                         <h3>Your Carbon Impact</h3>
                         <div class="carbon-stat-item">
                             <span class="label">Total Savings</span>
-                            <span class="value"><%=user.totalCarbonFootprints%> kg CO₂</span>
+                            <span class="value">
+                                <%=user.totalCarbonFootprints%> kg CO₂
+                            </span>
                         </div>
                         <div class="carbon-stat-item">
                             <span class="label">Trees Planted</span>
-                            <%t = user.totalCarbonFootprints/2%>
-                            <span class="value"><%=t%></span>
+                            <%t=user.totalCarbonFootprints/2%>
+                                <span class="value">
+                                    <%=t%>
+                                </span>
                         </div>
                     </div>
                 </div>
@@ -714,40 +744,51 @@
                         </h3>
 
                         <div class="cart-items">
-                            <% if (cartItems && cartItems.length > 0) { %>
-                                <% cartItems.forEach(item => { %>
-                                  <div class="cart-item">
-                                      <img src="<%= item.product.image || '/api/placeholder/90/90' %>" alt="<%= item.product.name %>" class="cart-item-img">
-                                      <div class="cart-item-info">
-                                          <div class="cart-item-name"><%= item.product.name %></div>
-                                          <div class="cart-item-carbon">
-                                              <i class="fas fa-leaf"></i> 
-                                              <%= item.product.carbonFootprint >= 0 ? '+' : '' %><%= item.product.carbonFootprint %> kg CO₂
-                                          </div>
-                                      </div>
-                                      <div class="cart-item-price">$<%= item.product.price %></div>
-                                      <div class="cart-item-quantity">
-                                          <span><%= item.quantity || 1 %></span>
-                                      </div>
-                                  </div>
-                                <% }) %>
-                              <% } else { %>
-                                <div class="cart-item">No items</div>
-                              <% } %>
+                            <% if (cartItems && cartItems.length> 0) { %>
+                                <% cartItems.forEach(item=> { %>
+                                    <div class="cart-item">
+                                        <img src="<%= item.product.image || '/api/placeholder/90/90' %>"
+                                            alt="<%= item.product.name %>" class="cart-item-img">
+                                        <div class="cart-item-info">
+                                            <div class="cart-item-name">
+                                                <%= item.product.name %>
+                                            </div>
+                                            <div class="cart-item-carbon">
+                                                <i class="fas fa-leaf"></i>
+                                                <%= item.product.carbonFootprint>= 0 ? '+' : '' %><%=
+                                                        item.product.carbonFootprint %> kg CO₂
+                                            </div>
+                                        </div>
+                                        <div class="cart-item-price">₹<%= item.product.price %>
+                                        </div>
+                                        <div class="cart-item-quantity">
+                                            <span>
+                                                <%= item.quantity || 1 %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="cart-item">No items</div>
+                                            <% } %>
                         </div>
 
                         <div class="cart-summary">
                             <div class="summary-left">
-                                <% let totalPrice = 0; %>
-                        <% cartItems.forEach(item => {
-                            const itemTotal = (item.product.price || 0) * (item.quantity || 0);
-                            totalPrice += itemTotal;
-                        }); %>
-                                <div class="subtotal">Subtotal: <strong><%= totalPrice %></strong></div>
-                                <div class="eco-impact">
-                                    <i class="fas fa-seedling"></i>
-                                    Total Carbon Savings: <strong><%=user.totalCarbonFootprint%> kg CO₂</strong>
-                                </div>
+                                <% let totalPrice=0; %>
+                                    <% cartItems.forEach(item=> {
+                                        const itemTotal = (item.product.price || 0) * (item.quantity || 0);
+                                        totalPrice += itemTotal;
+                                        }); %>
+                                        <div class="subtotal">Subtotal: <strong>
+                                            ₹ <%= totalPrice %>
+                                            </strong></div>
+                                        <div class="eco-impact">
+                                            <i class="fas fa-seedling"></i>
+                                            Total Carbon Savings: <strong>
+                                                <%=user.totalCarbonFootprint%> kg CO₂
+                                            </strong>
+                                        </div>
                             </div>
                             <button class="checkout-btn">Proceed to Checkout</button>
                         </div>
@@ -763,47 +804,53 @@
                         <div class="order-history-items">
                             <div class="order-item">
                                 <div class="order-products">
-                                  <% if (purchasedItems && purchasedItems.length > 0) { %>
-                                    <% purchasedItems.forEach(item => { %>
-                                      <div class="order-product">
-                                        <img src="<%= item.product.image || '/api/placeholder/80/80' %>" alt="<%= item.product.name %>">
-                                        <div class="order-product-name"><%= item.product.name %></div>
-                                      </div>
-                                    <% }) %>
-                                  <% } else { %>
-                                    <div class="order-product">No purchases yet</div>
-                                  <% } %>
-                                </div>
-                              </div>
-                              
-
-                                <div class="order-footer">
-                                    <% 
-                                        let totalP = 0;
-                                        let totalCarbonSaved = 0;
-                                        if (user.purchased && user.purchased.length > 0) {
-                                            user.purchased.forEach(product => {
-                                                totalP += product.price || 0;
-                                                totalCarbonSaved += product.carbonFootprint || 0;
-                                            });
-                                        }
-                                    %>
-
-<% if (user.purchased && user.purchased.length > 0) { %>
-<div>
-    <div class="order-total">Total: $<%= totalP.toFixed(2) %></div>
-    <div class="order-carbon">
-        <i class="fas fa-leaf"></i>
-        Carbon Saved: <%= totalCarbonSaved.toFixed(1) %> kg CO₂
-    </div>
-</div>
-<% } %>
-
+                                    <% if (purchasedItems && purchasedItems.length> 0) { %>
+                                        <% purchasedItems.forEach(item=> { %>
+                                            <div class="order-product">
+                                                <img src="<%= item.product.image || '/api/placeholder/80/80' %>"
+                                                    alt="<%= item.product.name %>">
+                                                <div class="order-product-name">
+                                                    <%= item.product.name %>
+                                                </div>
+                                            </div>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <div class="order-product">No purchases yet</div>
+                                                    <% } %>
                                 </div>
                             </div>
 
-            <script>
-                document.body.querySelector('.checkout-btn').addEventListener('click',()=>{
-                    window.location.href='/cart'
-                })
-            </script>
+
+                            <div class="order-footer">
+                                <% let totalP=0; let totalCarbonSaved=0; if (user.purchased && user.purchased.length> 0)
+                                    {
+                                    user.purchased.forEach(product => {
+                                    totalP += product.product.price || 0;
+                                    totalCarbonSaved += product.product.carbonFootprint || 0;
+                                    });
+                                    }
+                                    %>
+
+                                    <% if (user.purchased && user.purchased.length> 0) { %>
+                                        <div>
+                                            <div class="order-total">Total: $<%= totalP.toFixed(2) %>
+                                            </div>
+                                            <div class="order-carbon">
+                                                <i class="fas fa-leaf"></i>
+                                                Carbon Saved: <%= totalCarbonSaved.toFixed(1) %> kg CO₂
+                                            </div>
+                                        </div>
+                                        <% } %>
+
+                            </div>
+                        </div>
+
+                        <script>
+                            document.body.querySelector('.checkout-btn').addEventListener('click', () => {
+                                window.location.href = '/cart'
+                            })
+                            document.body.querySelector('.cart-btn').addEventListener('click', () => {
+                                window.location.href = '/cart'
+                            })
+
+                        </script>

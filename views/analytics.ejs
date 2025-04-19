@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>India Carbon Monoxide Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/jpg" href="/ppimages/logo.jpg">
+  <title>India Carbon Monoxide Dashboard</title>
   <link rel="stylesheet" href="/stylesheets/userHome.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
@@ -17,16 +19,16 @@
       --card-bg: rgba(30, 41, 59, 0.7);
       --text: #f8fafc;
     }
-    
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       background-color: var(--background);
-      background-image: 
+      background-image:
         radial-gradient(circle at 80% 10%, rgba(255, 153, 51, 0.15) 0%, transparent 20%),
         radial-gradient(circle at 20% 90%, rgba(19, 136, 8, 0.15) 0%, transparent 20%);
       color: var(--text);
@@ -34,19 +36,24 @@
       overflow-x: hidden;
       min-height: 100vh;
     }
-    
+
+    .main-content {
+      padding-top: 80px;
+      /* Space for fixed navbar */
+    }
+
     .container {
       max-width: 1400px;
       margin: 0 auto;
       padding: 2rem;
     }
-    
+
     header {
       text-align: center;
       margin-bottom: 3rem;
       position: relative;
     }
-    
+
     h1 {
       font-size: 2.8rem;
       margin-bottom: 0.5rem;
@@ -55,20 +62,20 @@
       -webkit-text-fill-color: transparent;
       display: inline-block;
     }
-    
+
     .subtitle {
       font-size: 1.2rem;
       color: rgba(248, 250, 252, 0.8);
       margin-bottom: 1rem;
     }
-    
+
     .dashboard {
       display: grid;
       grid-template-columns: 1fr 2fr;
       gap: 2rem;
       margin-top: 2rem;
     }
-    
+
     .map-container {
       position: relative;
       background: var(--card-bg);
@@ -79,7 +86,7 @@
       overflow: hidden;
       grid-row: span 2;
     }
-    
+
     .map-container::before {
       content: '';
       position: absolute;
@@ -89,13 +96,13 @@
       height: 5px;
       background: linear-gradient(90deg, var(--primary), var(--secondary));
     }
-    
+
     #india-map {
       width: 100%;
       height: 600px;
       position: relative;
     }
-    
+
     .chart-container {
       background: var(--card-bg);
       border-radius: 1rem;
@@ -105,7 +112,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .chart-container::before {
       content: '';
       position: absolute;
@@ -115,14 +122,14 @@
       height: 5px;
       background: linear-gradient(90deg, var(--primary), var(--secondary));
     }
-    
+
     .tabs {
       display: flex;
       gap: 0.5rem;
       margin-bottom: 1.2rem;
       flex-wrap: wrap;
     }
-    
+
     .tab-btn {
       padding: 0.6rem 1.2rem;
       border: none;
@@ -135,7 +142,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .tab-btn::before {
       content: '';
       position: absolute;
@@ -148,18 +155,18 @@
       transition: width 0.3s ease;
       z-index: -1;
     }
-    
+
     .tab-btn:hover::before {
       width: 100%;
     }
-    
+
     .tab-btn.active {
       background: linear-gradient(90deg, var(--primary), var(--secondary));
       color: white;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(255, 153, 51, 0.3);
     }
-    
+
     .city-marker {
       fill: rgba(255, 255, 255, 0.7);
       stroke: var(--primary);
@@ -167,12 +174,13 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-    
-    .city-marker:hover, .city-marker.active {
+
+    .city-marker:hover,
+    .city-marker.active {
       fill: var(--primary);
       r: 10;
     }
-    
+
     .city-label {
       fill: white;
       font-size: 12px;
@@ -181,14 +189,14 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin-top: 2rem;
     }
-    
+
     .stat-card {
       background: var(--card-bg);
       border-radius: 1rem;
@@ -199,7 +207,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .stat-card::before {
       content: '';
       position: absolute;
@@ -209,7 +217,7 @@
       height: 3px;
       background: linear-gradient(90deg, var(--primary), var(--secondary));
     }
-    
+
     .stat-value {
       font-size: 2rem;
       font-weight: bold;
@@ -218,17 +226,17 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+
     .stat-label {
       font-size: 0.9rem;
       color: rgba(248, 250, 252, 0.7);
     }
-    
+
     .city-info {
       text-align: center;
       margin-bottom: 1.5rem;
     }
-    
+
     .legend {
       position: absolute;
       bottom: 20px;
@@ -238,20 +246,20 @@
       border-radius: 8px;
       font-size: 12px;
     }
-    
+
     .legend-item {
       display: flex;
       align-items: center;
       margin: 5px 0;
     }
-    
+
     .legend-color {
       width: 15px;
       height: 15px;
       margin-right: 5px;
       border-radius: 50%;
     }
-    
+
     .loader {
       position: fixed;
       top: 0;
@@ -264,11 +272,11 @@
       align-items: center;
       z-index: 1000;
     }
-    
+
     .loader-content {
       text-align: center;
     }
-    
+
     .loader-spinner {
       width: 50px;
       height: 50px;
@@ -277,32 +285,34 @@
       border-top-color: var(--primary);
       animation: spin 1s ease-in-out infinite;
     }
-    
+
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
-    
+
     .flag-stripe {
       height: 5px;
       width: 100%;
       display: flex;
     }
-    
+
     .flag-orange {
       background-color: var(--primary);
       flex: 1;
     }
-    
+
     .flag-white {
       background-color: white;
       flex: 1;
     }
-    
+
     .flag-green {
       background-color: var(--secondary);
       flex: 1;
     }
-    
+
     .notification {
       position: fixed;
       top: 20px;
@@ -315,55 +325,120 @@
       z-index: 100;
       transform: translateX(200%);
     }
-    
+
     @media (max-width: 992px) {
       .dashboard {
         grid-template-columns: 1fr;
       }
-      
+
       h1 {
         font-size: 2rem;
       }
-      
+
       .subtitle {
         font-size: 1rem;
       }
-      
+
       #india-map {
         height: 400px;
       }
     }
   </style>
 </head>
+
 <body>
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="container">
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
-                <path d="M11 20A7 7 0 0 1 4 13A7 7 0 0 1 4 6A7 7 0 0 1 11 4A7 7 0 0 1 11 20Z"></path>
-                <path d="M18 6C18 7 17 8 16 8S14 7 14 6 15 4 16 4 18 5 18 6Z"></path>
-                <path d="M18 14C18 15 17 16 16 16S14 15 14 14 15 12 16 12 18 13 18 14Z"></path>
-                <path d="M6 18C6 19 5 20 4 20S2 19 2 18 3 16 4 16 6 17 6 18Z"></path>
-            </svg>
-            <span>ReVibe</span>
-        </div>
-        <ul class="nav-links">
-            <li><a href="/home" class="active">Home</a></li>
-            <li><a href="/leaderboard">Leaderboard</a></li>
-            <li><a href="/analytics">Analytics</a></li>
-            <li><a href="#">About Us</a></li>
-        </ul>
-        <div class="nav-icons">
-            <button class="icon-btn"><i class="search-icon">🔍</i></button>
-            <button class="icon-btn"><i class="user-icon">👤</i></button>
-            <button class="icon-btn cart-btn">
-                <i class="cart-icon">🛒</i>
-                <span class="cart-count"><%= count %></span>
-            </button>
-        </div>
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+          <path d="M11 20A7 7 0 0 1 4 13A7 7 0 0 1 4 6A7 7 0 0 1 11 4A7 7 0 0 1 11 20Z"></path>
+          <path d="M18 6C18 7 17 8 16 8S14 7 14 6 15 4 16 4 18 5 18 6Z"></path>
+          <path d="M18 14C18 15 17 16 16 16S14 15 14 14 15 12 16 12 18 13 18 14Z"></path>
+          <path d="M6 18C6 19 5 20 4 20S2 19 2 18 3 16 4 16 6 17 6 18Z"></path>
+        </svg>
+        <span>ReVibe</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="/home">Home</a></li>
+        <li><a href="/leaderboard">Leaderboard</a></li>
+        <li><a href="/analytics" class="active">Analytics</a></li>
+        <li><a href="/about">About Us</a></li>
+      </ul>
+      <div class="nav-icons">
+        <button class="icon-btn profile"><i class="user-icon">👤</i></button>
+        <button class="icon-btn cart-btn">
+          <i class="cart-icon">🛒</i>
+          <span class="cart-count">
+            <%= count %>
+          </span>
+        </button>
+      </div>
     </div>
-</nav>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <header>
+        <h1>Carbon Footprint Analytics</h1>
+        <p class="subtitle">Track and analyze India's carbon monoxide levels across major cities</p>
+      </header>
+
+      <div class="dashboard">
+        <div class="map-container">
+          <h2>Geographic Distribution</h2>
+          <div id="india-map"></div>
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: #00ff00;"></div>
+              <span>Low CO (0-500 μg/m³)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ffff00;"></div>
+              <span>Medium CO (500-1000 μg/m³)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ff0000;"></div>
+              <span>High CO (1000+ μg/m³)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="city-info">
+            <h3 id="selected-city">Delhi</h3>
+          </div>
+          <div class="tabs" id="cityTabs"></div>
+          <canvas id="cityChart"></canvas>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p class="stat-label">Current CO Level</p>
+            <p class="stat-value" id="current-co">0</p>
+            <p class="stat-label">μg/m³</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">24h Average</p>
+            <p class="stat-value" id="avg-co">0</p>
+            <p class="stat-label">μg/m³</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">Peak Level</p>
+            <p class="stat-value" id="max-co">0</p>
+            <p class="stat-label">μg/m³</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">Air Quality</p>
+            <p class="stat-value" id="quality-status">-</p>
+            <p class="stat-label">based on CO</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="loader">
     <div class="loader-content">
@@ -371,71 +446,7 @@
       <p style="margin-top: 20px;">Loading Air Quality Data...</p>
     </div>
   </div>
-  
-  <div class="container">
-    <header>
-      <div class="flag-stripe">
-        <div class="flag-orange"></div>
-        <div class="flag-white"></div>
-        <div class="flag-green"></div>
-      </div>
-      <h1>India Carbon Monoxide Dashboard</h1>
-      <p class="subtitle">Real-time monitoring of CO levels across major Indian cities</p>
-    </header>
-    
-    <div class="dashboard">
-      <div class="map-container">
-        <h2>Geographic Distribution</h2>
-        <div id="india-map"></div>
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-color" style="background: #00ff00;"></div>
-            <span>Low CO (0-500 μg/m³)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #ffff00;"></div>
-            <span>Medium CO (500-1000 μg/m³)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #ff0000;"></div>
-            <span>High CO (1000+ μg/m³)</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <div class="city-info">
-          <h3 id="selected-city">Delhi</h3>
-        </div>
-        <div class="tabs" id="cityTabs"></div>
-        <canvas id="cityChart"></canvas>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card">
-          <p class="stat-label">Current CO Level</p>
-          <p class="stat-value" id="current-co">0</p>
-          <p class="stat-label">μg/m³</p>
-        </div>
-        <div class="stat-card">
-          <p class="stat-label">24h Average</p>
-          <p class="stat-value" id="avg-co">0</p>
-          <p class="stat-label">μg/m³</p>
-        </div>
-        <div class="stat-card">
-          <p class="stat-label">Peak Level</p>
-          <p class="stat-value" id="max-co">0</p>
-          <p class="stat-label">μg/m³</p>
-        </div>
-        <div class="stat-card">
-          <p class="stat-label">Air Quality</p>
-          <p class="stat-value" id="quality-status">-</p>
-          <p class="stat-label">based on CO</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
+
   <div class="notification" id="notification">
     <p id="notification-text"></p>
   </div>
@@ -456,15 +467,15 @@
     let cityChart;
     let currentCity = cities[0];
     let cityData = {};
-    
+
     // GSAP Timeline
     const mainTimeline = gsap.timeline();
-    
+
     // Function to show notification
     function showNotification(message) {
       const notification = document.getElementById("notification");
       document.getElementById("notification-text").textContent = message;
-      
+
       gsap.to(notification, {
         x: 0,
         duration: 0.5,
@@ -479,7 +490,7 @@
         }
       });
     }
-    
+
     // Create city tabs
     function createTabs() {
       const tabs = document.getElementById("cityTabs");
@@ -488,41 +499,41 @@
         btn.innerText = city.name;
         btn.classList.add("tab-btn");
         if (index === 0) btn.classList.add("active");
-        
+
         btn.addEventListener("click", () => {
           document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           updateCity(city);
         });
-        
+
         tabs.appendChild(btn);
       });
     }
-    
+
     // Update selected city
     function updateCity(city) {
       currentCity = city;
       document.getElementById("selected-city").textContent = city.name;
-      
+
       // Update map selection if the map is initialized
       const marker = document.querySelector(`.city-marker[data-city="${city.name}"]`);
       if (marker) {
         document.querySelectorAll(".city-marker").forEach(m => m.classList.remove("active"));
         marker.classList.add("active");
-        
+
         gsap.to(marker, {
           r: 12,
           duration: 0.3,
           yoyo: true,
           repeat: 1
         });
-        
+
         // Show city label
         document.querySelectorAll(".city-label").forEach(l => l.style.opacity = 0);
         const label = document.querySelector(`.city-label[data-city="${city.name}"]`);
         if (label) label.style.opacity = 1;
       }
-      
+
       // If we have data for this city, update the chart
       if (cityData[city.name]) {
         updateChartAndStats(cityData[city.name], city);
@@ -530,46 +541,46 @@
         fetchCityData(city);
       }
     }
-    
+
     // Fetch city data
     async function fetchCityData(city) {
       const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&hourly=carbon_monoxide`;
-      
+
       try {
         const res = await fetch(url);
         const data = await res.json();
-        
+
         // Store the data
         cityData[city.name] = data;
-        
+
         // Update chart
         updateChartAndStats(data, city);
-        
+
       } catch (err) {
         console.error("Error fetching data:", err);
         showNotification(`Error fetching data for ${city.name}`);
       }
     }
-    
+
     // Update chart and statistics
     function updateChartAndStats(data, city) {
       const hours = data.hourly.time.slice(0, 24);
       const coValues = data.hourly.carbon_monoxide.slice(0, 24);
-      
+
       // Calculate statistics
       const currentCO = coValues[0];
       const avgCO = coValues.reduce((sum, val) => sum + val, 0) / coValues.length;
       const maxCO = Math.max(...coValues);
-      
+
       // Update statistic displays with animation
       animateNumber("current-co", currentCO);
       animateNumber("avg-co", avgCO);
       animateNumber("max-co", maxCO);
-      
+
       // Determine air quality based on CO level
       let quality = "";
       let qualityColor = "";
-      
+
       if (currentCO < 500) {
         quality = "Good";
         qualityColor = "#4caf50";
@@ -580,20 +591,20 @@
         quality = "Poor";
         qualityColor = "#f44336";
       }
-      
+
       document.getElementById("quality-status").textContent = quality;
       document.getElementById("quality-status").style.background = `linear-gradient(90deg, ${qualityColor}, #138808)`;
-      
+
       // Update chart
       if (cityChart) {
         cityChart.destroy();
       }
-      
+
       const hourLabels = hours.map(h => {
         const date = new Date(h);
         return date.getHours() + ":00";
       });
-      
+
       cityChart = new Chart(ctx, {
         type: "line",
         data: {
@@ -634,14 +645,14 @@
             }
           },
           scales: {
-            x: { 
+            x: {
               grid: { color: "rgba(255, 255, 255, 0.1)" },
               ticks: { color: "#f8fafc" }
             },
             y: {
-              title: { 
-                display: true, 
-                text: "CO Concentration (μg/m³)", 
+              title: {
+                display: true,
+                text: "CO Concentration (μg/m³)",
                 color: "#f8fafc",
                 font: { family: "Poppins" }
               },
@@ -651,32 +662,32 @@
           }
         }
       });
-      
+
       // Update marker color based on CO level
       updateCityMarkerColor(city.name, currentCO);
     }
-    
+
     // Animate number counting
     function animateNumber(elementId, targetValue) {
       const element = document.getElementById(elementId);
       const startValue = parseFloat(element.textContent) || 0;
       const duration = 1.5; // seconds
-      
-      gsap.to({value: startValue}, {
+
+      gsap.to({ value: startValue }, {
         value: targetValue,
         duration: duration,
         ease: "power2.out",
-        onUpdate: function() {
+        onUpdate: function () {
           element.textContent = Math.round(this.targets()[0].value);
         }
       });
     }
-    
+
     // Update city marker color based on CO level
     function updateCityMarkerColor(cityName, coLevel) {
       const marker = document.querySelector(`.city-marker[data-city="${cityName}"]`);
       if (!marker) return;
-      
+
       let color;
       if (coLevel < 500) {
         color = "#00ff00"; // Green for low CO
@@ -685,62 +696,69 @@
       } else {
         color = "#ff0000"; // Red for high CO
       }
-      
+
       marker.setAttribute("fill", color);
     }
-    
+
     // Initialize India map using SVG directly
     function initMap() {
       const width = 580;
       const height = 600;
-      
+
       // Create SVG element
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("width", "100%");
       svg.setAttribute("height", "100%");
-      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-      
-      // Add a background shape representing India
+      svg.setAttribute("viewBox", "0 0 580 600");
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+      // Add a background shape representing India with more accurate outline
       const indiaOutline = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      indiaOutline.setAttribute("d", "M300,100 C380,80 450,120 470,200 C490,280 480,350 430,400 C380,450 340,470 280,480 C220,490 160,470 120,420 C80,370 70,310 90,250 C110,190 150,140 200,120 C250,100 280,110 300,100 Z");
+      indiaOutline.setAttribute("d", `
+        M280,50 
+        C310,45 330,60 350,80
+        C370,100 380,120 390,140
+        C400,160 405,180 410,200
+        C415,220 420,240 425,260
+        C430,280 432,300 435,320
+        C438,340 440,360 438,380
+        C436,400 432,420 425,440
+        C418,460 410,480 400,500
+        C390,520 375,535 360,550
+        C345,565 325,575 300,580
+        C275,585 250,583 225,575
+        C200,567 180,555 165,540
+        C150,525 140,505 135,485
+        C130,465 128,445 125,425
+        C122,405 120,385 118,365
+        C116,345 115,325 120,305
+        C125,285 135,265 150,245
+        C165,225 185,210 200,190
+        C215,170 225,150 240,130
+        C255,110 265,90 280,50
+        Z
+      `);
       indiaOutline.setAttribute("fill", "#1e293b");
       indiaOutline.setAttribute("stroke", "#334155");
       indiaOutline.setAttribute("stroke-width", "2");
       svg.appendChild(indiaOutline);
-      
-      // Add state divisions (simplified)
-      const states = [
-        "M250,150 C280,140 320,150 340,180 C360,210 350,250 330,270 C310,290 280,290 260,270 C240,250 230,220 240,190 C250,160 240,150 250,150 Z",
-        "M180,180 C210,170 240,190 250,220 C260,250 250,280 230,300 C210,320 180,320 160,300 C140,280 130,250 140,220 C150,190 160,190 180,180 Z",
-        "M320,250 C350,240 380,260 390,290 C400,320 390,350 370,370 C350,390 320,390 300,370 C280,350 270,320 280,290 C290,260 300,260 320,250 Z",
-        "M240,320 C270,310 300,330 310,360 C320,390 310,420 290,440 C270,460 240,460 220,440 C200,420 190,390 200,360 C210,330 220,330 240,320 Z"
-      ];
-      
-      states.forEach(pathData => {
-        const state = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        state.setAttribute("d", pathData);
-        state.setAttribute("fill", "#1e293b");
-        state.setAttribute("stroke", "#334155");
-        state.setAttribute("stroke-width", "1");
-        svg.appendChild(state);
-      });
-      
-      // Define coordinates for cities on our simplified map
+
+      // Define more accurate coordinates for cities
       const cityCoordinates = {
-        "Delhi": [280, 180],
-        "Mumbai": [180, 350],
-        "Kolkata": [400, 280],
-        "Chennai": [300, 420],
-        "Bengaluru": [250, 380],
-        "Hyderabad": [280, 320],
-        "Ahmedabad": [180, 250],
-        "Lucknow": [320, 220]
+        "Delhi": [280, 180],      // North India
+        "Mumbai": [200, 380],     // West Coast
+        "Kolkata": [400, 300],    // East India
+        "Chennai": [300, 480],    // South East Coast
+        "Bengaluru": [260, 450],  // South India
+        "Hyderabad": [280, 400],  // South Central
+        "Ahmedabad": [180, 300],  // West India
+        "Lucknow": [320, 220]     // North Central
       };
-      
+
       // Add city markers
       cities.forEach(city => {
         const [x, y] = cityCoordinates[city.name];
-        
+
         // Create city marker (circle)
         const marker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         marker.setAttribute("class", "city-marker");
@@ -751,18 +769,17 @@
         marker.setAttribute("fill", "rgba(255, 255, 255, 0.7)");
         marker.setAttribute("stroke", "#FF9933");
         marker.setAttribute("stroke-width", "1.5");
-        
+
         marker.addEventListener("click", () => {
-          // Find and click the corresponding tab button
           document.querySelectorAll(".tab-btn").forEach(btn => {
             if (btn.innerText === city.name) {
               btn.click();
             }
           });
         });
-        
+
         svg.appendChild(marker);
-        
+
         // Add city label
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label.setAttribute("class", "city-label");
@@ -775,24 +792,23 @@
         label.textContent = city.name;
         svg.appendChild(label);
       });
-      
+
       // Add SVG to map container
       document.getElementById("india-map").appendChild(svg);
-      
+
       // Highlight Delhi by default
       const delhiMarker = document.querySelector('.city-marker[data-city="Delhi"]');
       if (delhiMarker) delhiMarker.classList.add("active");
-      
+
       // Animate the map elements
       gsap.from("#india-map path", {
         scale: 0.9,
         opacity: 0,
-        stagger: 0.03,
         duration: 1,
         ease: "power2.out",
         transformOrigin: "center center"
       });
-      
+
       gsap.from(".city-marker", {
         scale: 0,
         stagger: 0.1,
@@ -801,12 +817,12 @@
         ease: "back.out(1.7)"
       });
     }
-    
+
     // Initialize the application
     async function init() {
       createTabs();
       initMap();
-      
+
       // Main animation sequence
       mainTimeline
         .to(".loader", {
@@ -841,13 +857,13 @@
           duration: 0.8,
           ease: "power2.out"
         }, "-=0.5");
-      
+
       // Make website interactive
       document.body.addEventListener("mousemove", e => {
         const { clientX, clientY } = e;
         const x = (clientX / window.innerWidth) - 0.5;
         const y = (clientY / window.innerHeight) - 0.5;
-        
+
         gsap.to(".map-container, .chart-container, .stat-card", {
           rotationY: x * 2,
           rotationX: -y * 2,
@@ -856,20 +872,26 @@
           duration: 0.5
         });
       });
-      
+
       // Show welcome notification
       setTimeout(() => {
         showNotification("Welcome to India CO Monitoring Dashboard");
       }, 2000);
-      
+
       // Fetch data for each city
       for (const city of cities) {
         await fetchCityData(city);
       }
     }
-    
+    document.body.querySelector('.profile').addEventListener('click', () => {
+      window.location.href = '/profile'
+    })
+    document.body.querySelector('.cart-btn').addEventListener('click', () => {
+      window.location.href = '/cart'
+    })
     // Start application
     init();
   </script>
 </body>
+
 </html>

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/jpg" href="/ppimages/logo.jpg">
   <title>Eco Leaders - Carbon Footprint Reduction</title>
   <link rel="stylesheet" href="/stylesheets/userHome.css">
   <style>
@@ -322,11 +323,10 @@
                 <li><a href="/home" class="active">Home</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
                 <li><a href="/analytics">Analytics</a></li>
-                <li><a href="#">About Us</a></li>
+                <li><a href="/about">About Us</a></li>
             </ul>
             <div class="nav-icons">
-                <button class="icon-btn"><i class="search-icon">🔍</i></button>
-                <button class="icon-btn"><i class="user-icon">👤</i></button>
+                <button class="icon-btn profile"><i class="user-icon">👤</i></button>
                 <button class="icon-btn cart-btn">
                     <i class="cart-icon">🛒</i>
                     <span class="cart-count"><%= count %></span>
@@ -580,6 +580,12 @@
         });
       });
     });
+    document.body.querySelector('.profile').addEventListener('click', ()=>{
+    window.location.href = '/profile'
+  })
+    document.body.querySelector('.cart-btn').addEventListener('click', ()=>{
+    window.location.href = '/cart'
+  })
   </script>
 </body>
 </html>

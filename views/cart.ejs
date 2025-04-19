@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpg" href="/ppimages/logo.jpg">
     <title>Shopping Cart - Eco Store</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
@@ -432,25 +433,30 @@
 
 <body>
     <!-- Navbar -->
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="container">
             <div class="logo">
-                <span class="leaf-icon">🌱</span>
-                EcoStore
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13A7 7 0 0 1 4 6A7 7 0 0 1 11 4A7 7 0 0 1 11 20Z"></path>
+                    <path d="M18 6C18 7 17 8 16 8S14 7 14 6 15 4 16 4 18 5 18 6Z"></path>
+                    <path d="M18 14C18 15 17 16 16 16S14 15 14 14 15 12 16 12 18 13 18 14Z"></path>
+                    <path d="M6 18C6 19 5 20 4 20S2 19 2 18 3 16 4 16 6 17 6 18Z"></path>
+                </svg>
+                <span>ReVibe</span>
             </div>
             <ul class="nav-links">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Shop</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="/home" class="active">Home</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <li><a href="/about">About Us</a></li>
             </ul>
             <div class="nav-icons">
-                <button class="icon-btn">🔍</button>
-                <button class="icon-btn">👤</button>
-                <button class="icon-btn">🛒
-                    <span class="cart-count">
-                        <%=count%>
-                    </span>
+                <button class="icon-btn profile"><i class="user-icon">👤</i></button>
+                <button class="icon-btn cart-btn">
+                    <i class="cart-icon">🛒</i>
+                    <span class="cart-count"><%= count %></span>
                 </button>
             </div>
         </div>
@@ -481,7 +487,7 @@
                                 <div class="item-carbon">
                                     🌿 Saves <%= item.product.carbonFootprint %> carbon footprint
                                 </div>
-                                <p class="item-price">$<%= item.product.price %>
+                                <p class="item-price">₹<%= item.product.price %>
                                 </p>
                             </div>
 
@@ -511,18 +517,18 @@
                             const itemTotal = (item.product.price || 0) * (item.quantity || 0);
                             totalPrice += itemTotal;
                         }); %>
-                        <span class="summary-value">$<%= totalPrice %></span>
+                        <span class="summary-value">₹<%= totalPrice %></span>
                     </div>
                     
 
                     <div class="summary-row">
                         <span class="summary-label">Shipping</span>
-                        <span class="summary-value">$4.99</span>
+                        <span class="summary-value">₹50</span>
                     </div>
 
                     <div class="summary-row">
                         <span class="summary-label">Tax</span>
-                        <span class="summary-value">$7.35</span>
+                        <span class="summary-value">₹10</span>
                     </div>
 
                     <div class="carbon-saved">
@@ -545,11 +551,10 @@
 
                     <div class="summary-row summary-total">
                         <span class="summary-label">Total</span>
-                        <span class="summary-value">$<%= totalPrice + 4.99 + 7.35 %></span>
+                        <span class="summary-value">₹<%= totalPrice + 50 + 10 %></span>
                     </div>
 
                     <div id="paypal-button-container" class="checkout-btn">
-                        <button>Proceed to Checkout</button>
                     </div>
                 </div>
             </div>
@@ -783,7 +788,7 @@
     </script>
     <script>
         // Calculate total amount including shipping and tax
-        const totalAmount = parseFloat('<%= totalPrice + 4.99 + 7.35 %>');
+        const totalAmount = parseFloat('<%= (totalPrice + 50 + 10)/80 %>');
         const cartItemsData = <%- JSON.stringify(cartItems) %>;
 
         // Initialize PayPal button
@@ -830,6 +835,9 @@
                 });
             }
         }).render('#paypal-button-container');
+        document.body.querySelector('.profile').addEventListener('click', ()=>{
+            window.location.href = '/profile';
+        })
     </script>
     
 </body>

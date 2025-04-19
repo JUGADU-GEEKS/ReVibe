@@ -1,18 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoBounce Market</title>
     <link rel="stylesheet" href="/stylesheets/userHome.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container">
             <div class="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
                     <path d="M11 20A7 7 0 0 1 4 13A7 7 0 0 1 4 6A7 7 0 0 1 11 4A7 7 0 0 1 11 20Z"></path>
                     <path d="M18 6C18 7 17 8 16 8S14 7 14 6 15 4 16 4 18 5 18 6Z"></path>
                     <path d="M18 14C18 15 17 16 16 16S14 15 14 14 15 12 16 12 18 13 18 14Z"></path>
@@ -41,7 +43,8 @@
     <section class="hero">
         <div class="container">
             <h1 class="animate-title">Sustainable Style</h1>
-            <p class="animate-text">Discover our curated collection of recycled and upcycled products that help reduce your carbon footprint.</p>
+            <p class="animate-text">Discover our curated collection of recycled and upcycled products that help reduce
+                your carbon footprint.</p>
             <div class="hero-buttons">
                 <button class="primary-btn">Shop Recycled</button>
                 <button class="secondary-btn">Learn More</button>
@@ -75,6 +78,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        // Pass server-side products to JavaScript
+        const serverProducts = <%- JSON.stringify(products) %>;
+    </script>
     <script src="/scripts/userHome.js"></script>
 </body>
+
 </html>

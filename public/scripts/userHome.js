@@ -1,38 +1,5 @@
-
 // Register GSAP ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
-
-// Sample product data
-const products = [
-    {
-        id: 1,
-        name: "Upcycled Denim Jacket",
-        price: 89.99,
-        image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea",
-        carbonFootprint: 1.2
-    },
-    {
-        id: 2,
-        name: "Eco-Friendly Bamboo Chair",
-        price: 149.99,
-        image: "https://images.unsplash.com/photo-1592078615290-033ee584e267",
-        carbonFootprint: 3.5
-    },
-    {
-        id: 3,
-        name: "Recycled Glass Vase",
-        price: 45.99,
-        image: "https://images.unsplash.com/photo-1602666346781-a5ea09d5ad8a",
-        carbonFootprint: 1.8
-    },
-    {
-        id: 4,
-        name: "Upcycled Vinyl Record Bowl",
-        price: 29.99,
-        image: "https://images.unsplash.com/photo-1545454675-3531b543be5d",
-        carbonFootprint: 0.3
-    }
-];
 
 // Initialize page animations
 document.addEventListener('DOMContentLoaded', () => {
@@ -81,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render products
     const productsGrid = document.querySelector('.products-grid');
-    products.forEach(product => {
+    serverProducts.forEach(product => {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
@@ -113,14 +80,43 @@ function createProductCard(product) {
         </div>
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
+            <p class="product-material">Material: ${product.material}</p>
             <div class="product-price">$${product.price.toFixed(2)}</div>
-            <button class="add-to-cart">Add to Cart</button>
+            <button class="add-to-cart" data-product-id="${product._id}">Add to Cart</button>
         </div>
     `;
 
     // Add 3D hover effect
     card.addEventListener('mousemove', handleCardHover);
     card.addEventListener('mouseleave', resetCardTransform);
+
+    // Add to cart functionality
+    const addToCartBtn = card.querySelector('.add-to-cart');
+    addToCartBtn.addEventListener('click', async function() {
+        const productId = this.dataset.productId;
+        
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId })
+            });
+
+            if (response.ok) {
+                alert('Product added to cart successfully!');
+                // Update cart count
+                const cartCount = document.querySelector('.cart-count');
+                cartCount.textContent = parseInt(cartCount.textContent) + 1;
+            } else {
+                alert('Failed to add product to cart');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while adding to cart');
+        }
+    });
 
     return card;
 }
@@ -131,13 +127,13 @@ function handleCardHover(e) {
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     const rotateX = (y - centerY) / 10;
     const rotateY = (centerX - x) / 10;
-    
+
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
 }
 

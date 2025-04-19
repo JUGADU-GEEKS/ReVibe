@@ -1,4 +1,3 @@
-
 // Importing the Libraries Required
 const express = require('express');
 const app = express();
@@ -8,8 +7,22 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const User = require('./models/userModel'); // Your Mongoose model
+const Product = require('./models/productModel');
 const { isValidPassword, generateOtp } = require('./utils');
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+
+// Configure multer for image upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // app.use for loading json and static files
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +40,15 @@ app.use(session({
 
 // setting up the view engine
 app.set("view engine", "ejs")
+
+// Middleware to check admin authentication
+const isAdmin = (req, res, next) => {
+    if (req.session.admin) {
+        next();
+    } else {
+        res.redirect('/adminLogin');
+    }
+};
 
 //GET Request Routes
 app.get('/', (req, res) => {
@@ -80,13 +102,57 @@ app.get('/resendotp', async (req, res) => {
         res.status(500).send("Something went wrong.");
     }
 });
-app.get('/home', (req,res)=>{
-    res.render('userHome')
-})
+app.get('/home', async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 });
+        res.render('userHome', { products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).send('Error fetching products');
+    }
+});
 app.get('/adminLogin', (req,res)=>{
     res.render('adminLogin', {error: null})
 })
 
+// Admin Panel Routes
+app.get('/admin/dashboard', isAdmin, (req, res) => {
+    res.render('admin/dashboard');
+});
+
+app.get('/admin/products/add', isAdmin, (req, res) => {
+    res.render('admin/add-product');
+});
+
+app.post('/admin/products', isAdmin, upload.single('image'), async (req, res) => {
+    try {
+        const { name, material, price } = req.body;
+        const imagePath = req.file ? '/uploads/' + req.file.filename : '';
+
+        const product = new Product({
+            name,
+            material,
+            image: imagePath,
+            price: parseFloat(price)
+        });
+
+        await product.save();
+        res.redirect('/admin/dashboard');
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).send('Error creating product');
+    }
+});
+
+app.get('/admin/products', isAdmin, async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 });
+        res.render('admin/products-list', { products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).send('Error fetching products');
+    }
+});
 
 //POST Requests Routes
 
@@ -230,24 +296,99 @@ app.post('/login', async (req, res) => {
             return res.redirect('/resendotp');
         }
 
-        res.render('home');
+        res.redirect('/home');
     } catch (err) {
         console.error(err);
         res.render('userLogin', { error: err });
     }
 });
 
-app.post('/adminLogin', (req,res)=>{
-    const {email, password} = req.body;
-    if(email=='admin@admin.com'){
-        if(password=='admin1234'){
-            return res.render("Sucess");
-        }
-        return res.render("wrong");
-    }
-    return res.render("worng");
+app.post('/adminLogin', async (req, res) => {
+    const { email, password } = req.body;
+    
+    try {
+        if(email=='admin@admin.com' && password=='admin1234'){
+            // Set admin session
+            req.session.admin = {
+            email: email
+            };
 
-})
+            return res.render('admin/dashboard.ejs')
+        }
+
+        
+
+        res.redirect('/admin/dashboard');
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.render('adminLogin', { error: 'Something went wrong' });
+    }
+});
+
+// Add to cart route
+app.post('/cart/add', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Please login first' });
+    }
+
+    try {
+        const { productId } = req.body;
+        const userId = req.session.user.id;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if product is already in cart
+        const existingCartItem = user.cart.find(item => item.product.toString() === productId);
+        
+        if (existingCartItem) {
+            existingCartItem.quantity += 1;
+        } else {
+            user.cart.push({
+                product: productId,
+                quantity: 1
+            });
+        }
+
+        await user.save();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        res.status(500).json({ error: 'Error adding to cart' });
+    }
+});
+
+// View cart route
+app.get('/cart', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    try {
+        const user = await User.findById(req.session.user.id).populate('cart.product');
+        res.render('cart', { cart: user.cart });
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        res.status(500).send('Error fetching cart');
+    }
+});
+
+// View purchased items route
+app.get('/purchased', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    try {
+        const user = await User.findById(req.session.user.id).populate('purchased.product');
+        res.render('purchased', { purchased: user.purchased });
+    } catch (error) {
+        console.error('Error fetching purchased items:', error);
+        res.status(500).send('Error fetching purchased items');
+    }
+});
 
 //Listening to port 5000
 app.listen(5000)

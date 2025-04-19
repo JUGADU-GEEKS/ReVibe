@@ -31,6 +31,9 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
+// Set the views directory explicitly
+app.set('views', path.join(__dirname, 'views'));
+app.set("view engine", "ejs");
 
 // Setup session middleware (you should do this in your main app.js or index.js)
 app.use(session({
@@ -38,9 +41,6 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
-
-// setting up the view engine
-app.set("view engine", "ejs")
 
 // Middleware to check admin authentication
 const isAdmin = (req, res, next) => {

@@ -30,11 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Navbar scroll effect
     window.addEventListener('scroll', () => {
         const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.style.backgroundColor = 'rgba(26, 26, 34, 0.8)';
-        } else {
-            navbar.style.backgroundColor = 'transparent';
-        }
+        navbar.style.backgroundColor = window.scrollY > 50 ? 'rgba(26, 26, 34, 0.8)' : 'transparent';
     });
 
     // Animate background elements
@@ -92,29 +88,30 @@ function createProductCard(product) {
 
     // Add to cart functionality
     const addToCartBtn = card.querySelector('.add-to-cart');
-    addToCartBtn.addEventListener('click', async function() {
+    addToCartBtn.addEventListener('click', async function () {
         const productId = this.dataset.productId;
-        
+
         try {
             const response = await fetch('/cart/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    credentials: 'include', // 👈 This is crucial
                 },
                 body: JSON.stringify({ productId })
             });
 
             if (response.ok) {
                 alert('Product added to cart successfully!');
-                // Update cart count
                 const cartCount = document.querySelector('.cart-count');
                 cartCount.textContent = parseInt(cartCount.textContent) + 1;
             } else {
-                alert('Failed to add product to cart');
+                const error = await response.json();
+                alert('Failed to add to cart: ' + error.error);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while adding to cart');
+            alert('An error occurred while adding to cart.', error);
         }
     });
 

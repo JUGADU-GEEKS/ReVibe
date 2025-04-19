@@ -11,7 +11,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 const userSchema = new mongoose.Schema({
-    name: {
+    fullname: {
         type: String,
         required: true
     },

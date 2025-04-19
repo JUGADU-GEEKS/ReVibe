@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Eco Store</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=ASPDjnc1fJ8hnRluZHgFVSB4pXWQQBd4P5duHEEcMKmgUthBx2F8RJp2AXaX6ZdnMHB86WuVOQj888gC&components=buttons"></script>
+
+    <style>
+        :root {
+            --dark-bg: #0f0f13;
+            --dark-card: #1a1a22;
+            --accent-green: #4caf50;
+            --accent-teal: #009688;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --input-bg: #252530;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: background-color 0.3s;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaf-icon {
+            color: var(--accent-green);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-green);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            position: relative;
+            font-size: 1.2rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-green);
+            color: white;
+            font-size: 0.8rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Cart Page Styles */
+        .cart-page {
+            padding-top: 120px;
+            padding-bottom: 5rem;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .cart-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 3rem 0;
+            opacity: 0;
+        }
+
+        .cart-empty h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .continue-shopping {
+            padding: 1rem 2rem;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .continue-shopping:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .cart-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .cart-item {
+            background-color: var(--dark-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            transform: translateX(-20px);
+            opacity: 0;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-carbon {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-green);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--input-bg);
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--accent-green);
+        }
+
+        .quantity-value {
+            font-size: 1.1rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .item-remove {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+
+        .item-remove:hover {
+            color: #ff5252;
+        }
+
+        .cart-summary {
+            background-color: var(--dark-card);
+            border-radius: 12px;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .summary-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--input-bg);
+            padding-bottom: 1rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            font-weight: bold;
+        }
+
+        .carbon-saved {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .summary-total {
+            font-size: 1.3rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--input-bg);
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Shopping bag animations */
+        .floating-bags-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40vh;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-bag {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 3D Scene */
+        .scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glow {
+            position: fixed;
+            width: 50vw;
+            height: 50vh;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, rgba(15, 15, 19, 0) 70%);
+            filter: blur(50px);
+            pointer-events: none;
+        }
+
+        /* Responsive styles */
+        @media (min-width: 768px) {
+            .cart-layout {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-image {
+                width: 100%;
+                height: 180px;
+            }
+
+            .item-remove {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .cart-summary {
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="leaf-icon">🌱</span>
+                EcoStore
+            </div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Shop</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            <div class="nav-icons">
+                <button class="icon-btn">🔍</button>
+                <button class="icon-btn">👤</button>
+                <button class="icon-btn">🛒
+                    <span class="cart-count">
+                        <%=count%>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Shopping Bag Animations Container -->
+    <div class="floating-bags-container"></div>
+
+    <!-- Cart Page -->
+    <section class="cart-page">
+        <div class="container">
+            <h1 class="cart-title">Your Shopping Cart</h1>
+
+            <!-- Cart Content -->
+            <div class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-items">
+                    <% cartItems.forEach(item=> { %>
+                        <div class="cart-item">
+                            <div class="item-image">
+                                <img src="<%= item.product.image %>" alt="<%= item.product.name %>">
+                            </div>
+
+                            <div class="item-details">
+                                <h3 class="item-name">
+                                    <%= item.product.name %>
+                                </h3>
+                                <div class="item-carbon">
+                                    🌿 Saves <%= item.product.carbonFootprint %> carbon footprint
+                                </div>
+                                <p class="item-price">$<%= item.product.price %>
+                                </p>
+                            </div>
+
+                            <div class="item-quantity">
+                                <span class="quantity-value">
+                                    <%= item.quantity %>
+                                </span>
+                            </div>
+
+                            <!-- Remove Button as Form -->
+                            <form action="/cart/remove" method="POST">
+                                <input type="hidden" name="productId" value="<%= item.product._id %>">
+                                <button class="item-remove" type="submit">✕</button>
+                            </form>
+                        </div>
+                    <% }); %>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h2 class="summary-title">Order Summary</h2>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal (<%= count %> items)</span>
+                        <% let totalPrice = 0; %>
+                        <% cartItems.forEach(item => {
+                            const itemTotal = (item.product.price || 0) * (item.quantity || 0);
+                            totalPrice += itemTotal;
+                        }); %>
+                        <span class="summary-value">$<%= totalPrice %></span>
+                    </div>
+                    
+
+                    <div class="summary-row">
+                        <span class="summary-label">Shipping</span>
+                        <span class="summary-value">$4.99</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Tax</span>
+                        <span class="summary-value">$7.35</span>
+                    </div>
+
+                    <div class="carbon-saved">
+                        <div class="summary-row">
+                            <span class="summary-label">Carbon Footprint Saved</span>
+                            <% let total = 0; %>
+                            <% cartItems.forEach(item => {
+                                const itemTotal = (item.product.carbonFootprint || 0) * (item.quantity || 0);
+                                total += itemTotal;
+                            }); 
+                            const treesPlanted = Math.floor(total / 2); // 1 tree per 2 carbon units
+                            %>
+                            <span class="summary-value" style="color: var(--accent-green);"><%= total %>KG</span>
+                        </div>
+                        <small style="color: var(--text-secondary);">
+                            Equivalent to planting <%= treesPlanted %> tree<%= treesPlanted === 1 ? '' : 's' %>! 🌳
+                        </small>
+                        
+                    </div>
+
+                    <div class="summary-row summary-total">
+                        <span class="summary-label">Total</span>
+                        <span class="summary-value">$<%= totalPrice + 4.99 + 7.35 %></span>
+                    </div>
+
+                    <div id="paypal-button-container" class="checkout-btn">
+                        <button>Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Cart State (hidden by default) -->
+            <div class="cart-empty" style="display: none;">
+                <h3>Your cart is empty</h3>
+                <button class="continue-shopping">Continue Shopping</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Scene Elements -->
+    <div class="scene">
+        <div class="glow"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize GSAP
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Animate title
+            gsap.to('.cart-title', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+
+            // Animate cart items
+            gsap.to('.cart-item', {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                stagger: 0.2,
+                ease: 'power3.out',
+                delay: 0.3
+            });
+
+            // Animate summary box
+            gsap.to('.cart-summary', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.8,
+                ease: 'power3.out'
+            });
+
+            // Create floating shopping bags
+            createFloatingBags(15);
+
+            // Move glow effect with mouse
+            document.addEventListener('mousemove', function (e) {
+                const glow = document.querySelector('.glow');
+                const x = e.clientX;
+                const y = e.clientY;
+
+                gsap.to('.glow', {
+                    x: x - window.innerWidth / 4,
+                    y: y - window.innerHeight / 4,
+                    duration: 2,
+                    ease: 'power3.out'
+                });
+            });
+
+            // Cart functionality
+            setupCartFunctionality();
+        });
+
+        function createFloatingBags(count) {
+            const container = document.querySelector('.floating-bags-container');
+            const bagEmojis = ['🛍️', '👜', '🧺', '🎒', '🛒'];
+
+            for (let i = 0; i < count; i++) {
+                const bag = document.createElement('div');
+                bag.className = 'floating-bag';
+                bag.style.fontSize = `${Math.random() * 20 + 25}px`;
+                bag.textContent = bagEmojis[Math.floor(Math.random() * bagEmojis.length)];
+                container.appendChild(bag);
+
+                animateBag(bag);
+            }
+        }
+
+        function animateBag(bag) {
+            // Starting position (random but in the upper area)
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * window.innerHeight * 0.4; // Top 40% of screen
+
+            gsap.set(bag, {
+                x: startX,
+                y: startY,
+                rotation: Math.random() * 360,
+                opacity: 0
+            });
+
+            // Animation timeline
+            const tl = gsap.timeline({
+                onComplete: function () {
+                    animateBag(bag);
+                }
+            });
+
+            tl.to(bag, {
+                opacity: 0.3, // Slightly more visible
+                duration: 1,
+                ease: 'power1.inOut'
+            })
+                .to(bag, {
+                    x: `+=${Math.random() * 300 - 150}`,
+                    y: `+=${Math.random() * 100 - 20}`, // More horizontal than vertical movement
+                    rotation: `+=${Math.random() * 180 - 90}`,
+                    duration: Math.random() * 8 + 4, // Slightly faster
+                    ease: 'sine.inOut'
+                }, "-=1")
+                .to(bag, {
+                    opacity: 0,
+                    duration: 1,
+                    ease: 'power1.inOut'
+                }, "-=2");
+        }
+
+        function setupCartFunctionality() {
+            // Add quantity buttons functionality
+            const minusBtns = document.querySelectorAll('.quantity-btn:first-child');
+            const plusBtns = document.querySelectorAll('.quantity-btn:last-child');
+            const removeBtns = document.querySelectorAll('.item-remove');
+
+            minusBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const valueSpan = this.nextElementSibling;
+                    let value = parseInt(valueSpan.textContent);
+                    if (value > 1) {
+                        valueSpan.textContent = --value;
+                        updateCartTotals();
+                    }
+                });
+            });
+
+            plusBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const valueSpan = this.previousElementSibling;
+                    let value = parseInt(valueSpan.textContent);
+                    valueSpan.textContent = ++value;
+                    updateCartTotals();
+                });
+            });
+
+            removeBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const item = this.closest('.cart-item');
+
+                    // Fun animation when removing item - create a flying bag
+                    const itemRect = item.getBoundingClientRect();
+                    const flyingBag = document.createElement('div');
+                    flyingBag.textContent = '🛍️';
+                    flyingBag.style.position = 'fixed';
+                    flyingBag.style.fontSize = '30px';
+                    flyingBag.style.left = `${itemRect.left + itemRect.width / 2}px`;
+                    flyingBag.style.top = `${itemRect.top + itemRect.height / 2}px`;
+                    flyingBag.style.zIndex = '1000';
+                    flyingBag.style.pointerEvents = 'none';
+                    document.body.appendChild(flyingBag);
+
+                    // Animate the flying bag to the navbar cart icon
+                    const cartIcon = document.querySelector('.icon-btn:last-child');
+                    const cartRect = cartIcon.getBoundingClientRect();
+
+                    gsap.to(flyingBag, {
+                        x: cartRect.left - itemRect.left,
+                        y: cartRect.top - itemRect.top,
+                        scale: 0.5,
+                        duration: 0.8,
+                        ease: 'power2.in',
+                        onComplete: function () {
+                            flyingBag.remove();
+                        }
+                    });
+
+                    // Remove the item with animation
+                    gsap.to(item, {
+                        x: 50,
+                        opacity: 0,
+                        height: 0,
+                        padding: 0,
+                        margin: 0,
+                        duration: 0.5,
+                        onComplete: function () {
+                            item.remove();
+                            updateCartTotals();
+                            checkIfCartEmpty();
+                        }
+                    });
+                });
+            });
+        }
+
+        function updateCartTotals() {
+            // This would normally recalculate all totals based on quantities
+            // For this demo, we'll just animate the changes
+            gsap.from('.summary-value', {
+                scale: 1.2,
+                color: 'var(--accent-green)',
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+        }
+
+        function checkIfCartEmpty() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            const cartLayout = document.querySelector('.cart-layout');
+            const emptyCart = document.querySelector('.cart-empty');
+
+            if (cartItems.length === 0) {
+                gsap.to(cartLayout, {
+                    opacity: 0,
+                    height: 0,
+                    duration: 0.5,
+                    onComplete: function () {
+                        cartLayout.style.display = 'none';
+                        emptyCart.style.display = 'block';
+                        gsap.to(emptyCart, {
+                            opacity: 1,
+                            duration: 0.5
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+    <script>
+        // Calculate total amount including shipping and tax
+        const totalAmount = parseFloat('<%= totalPrice + 4.99 + 7.35 %>');
+        const cartItemsData = <%- JSON.stringify(cartItems) %>;
+
+        // Initialize PayPal button
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: totalAmount.toString(),
+                            currency_code: 'USD'
+                        },
+                        description: 'EcoStore Purchase'
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Send payment details to backend
+                    fetch('/process-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderID: data.orderID,
+                            payerID: details.payer.payer_id,
+                            amount: details.purchase_units[0].amount.value,
+                            cartItems: cartItemsData
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(data.message);
+                            window.location.href = '/purchased';
+                        } else {
+                            alert('Payment processing failed. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred during payment processing.');
+                    });
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
+    
+</body>
+
+</html>

@@ -49,6 +49,10 @@ const isAdmin = (req, res, next) => {
         res.redirect('/adminLogin');
     }
 };
+// PayPal Credentials (replace with your actual credentials)
+const PAYPAL_CLIENT_ID = 'ASPDjnc1fJ8hnRluZHgFVSB4pXWQQBd4P5duHEEcMKmgUthBx2F8RJp2AXaX6ZdnMHB86WuVOQj888gC';
+const PAYPAL_SECRET = 'EMMwjFk0COYOKsIOeRR18qB8-aM0NH38amTbIW8hmXmn-b470QY97qfczU7qUaUZ2CqX2-Rb1_IPqfJP';
+const PAYPAL_API = 'https://api-m.sandbox.paypal.com';
 
 //GET Request Routes
 app.get('/', (req, res) => {
@@ -58,7 +62,7 @@ app.get('/signup', (req, res) => {
     res.render('userSignup', { error: null })
 })
 app.get('/login', (req, res) => {
-    res.render('userLogin', {error:null})
+    res.render('userLogin', { error: null })
 })
 app.get('/verifyotp', (req, res) => {
     if (!req.session.user) {
@@ -105,14 +109,23 @@ app.get('/resendotp', async (req, res) => {
 app.get('/home', isLoggedIn, async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
-        res.render('userHome', { products });
+        const user = await User.findOne({ email: req.user.email });
+
+        // Check if user and user.cart exist
+        let count = 0;
+        if (user && Array.isArray(user.cart)) {
+            count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+        }
+
+        res.render('userHome', { products, count });
+
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('Error fetching products');
     }
 });
-app.get('/adminLogin', (req,res)=>{
-    res.render('adminLogin', {error: null})
+app.get('/adminLogin', (req, res) => {
+    res.render('adminLogin', { error: null })
 })
 
 // Admin Panel Routes
@@ -123,6 +136,35 @@ app.get('/admin/dashboard', isAdmin, (req, res) => {
 app.get('/admin/products/add', isAdmin, (req, res) => {
     res.render('admin/add-product');
 });
+
+app.get('/analytics', (req,res)=>{
+    res.render('analytics')
+})
+// controllers/cartController.js or inside your routes
+app.get('/cart',isLoggedIn, async (req, res) => {
+    try {
+      const user = await User.findOne({ email: req.user.email }).populate('cart.product');
+      // Check if user and user.cart exist
+      let count = 0;
+      if (user && Array.isArray(user.cart)) {
+          count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+      }
+      res.render('cart', { cartItems: user.cart, count });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Error fetching cart");
+    }
+  });
+
+  app.post('/cart/remove',isLoggedIn, async (req, res) => {
+    const { productId } = req.body;
+    await User.updateOne(
+      { email: req.user.email },
+      { $pull: { cart: { product: productId } } }
+    );
+    res.redirect('/cart');
+  });
+  
 
 app.post('/admin/products', isAdmin, upload.single('image'), async (req, res) => {
     try {
@@ -232,7 +274,7 @@ app.post('/verifyotp', async (req, res) => {
     const userSession = req.session.user;
 
     if (!userSession) {
-        return res.redirect('/signup', {error: null});
+        return res.redirect('/signup', { error: null });
     }
 
     const email = userSession.email;
@@ -301,9 +343,9 @@ app.post('/login', async (req, res) => {
         };
 
         // Generate JWT token
-        const token = jwt.sign({ 
+        const token = jwt.sign({
             userId: user._id,
-            email: user.email 
+            email: user.email
         }, "kunal", { expiresIn: '24h' });
 
         // Set both session and cookie
@@ -324,18 +366,18 @@ app.post('/login', async (req, res) => {
 
 app.post('/adminLogin', async (req, res) => {
     const { email, password } = req.body;
-    
+
     try {
-        if(email=='admin@admin.com' && password=='admin1234'){
+        if (email == 'admin@admin.com' && password == 'admin1234') {
             // Set admin session
             req.session.admin = {
-            email: email
+                email: email
             };
 
             return res.render('admin/dashboard.ejs')
         }
 
-        
+
 
         res.redirect('/admin/dashboard');
     } catch (error) {
@@ -348,7 +390,7 @@ app.post('/adminLogin', async (req, res) => {
 app.post('/cart/add', isLoggedIn, async (req, res) => {
     console.log('Add to cart request received');
     const { productId, quantity = 1 } = req.body;
-    
+
     // Get user ID from either session or token
     const userId = req.user.userId || req.session.user?.userId;
     console.log('User ID:', userId);
@@ -437,7 +479,7 @@ function isLoggedIn(req, res, next) {
     try {
         const decoded = jwt.verify(token, "kunal");
         console.log('Token verified successfully for user:', decoded.email);
-        
+
         // Set user in request
         req.user = decoded;
         next();
@@ -446,6 +488,40 @@ function isLoggedIn(req, res, next) {
         return res.status(401).json({ error: "Please login first" });
     }
 }
+// Endpoint to process payment and store product info
+app.post('/process-payment', isLoggedIn, async (req, res) => {
+    const { orderID, payerID, amount, cartItems } = req.body;
+
+    try {
+        const user = await User.findOne({ email: req.user.email });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        for (const item of cartItems) {
+            const product = await Product.findById(item.product._id);
+            if (!product) continue;
+
+            user.purchased.push({
+                product: product._id,
+                quantity: item.quantity,
+                purchasedAt: new Date()
+            });
+
+            user.totalCarbonFootprint += (product.carbonFootprint * item.quantity);
+        }
+
+        user.cart = [];
+        await user.save();
+
+        res.json({ 
+            message: 'Dummy Payment successful! Products added to your purchases.',
+            totalCarbonFootprint: user.totalCarbonFootprint
+        });
+
+    } catch (error) {
+        console.error('Error processing purchase:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 //Listening to port 5000
 app.listen(5000)

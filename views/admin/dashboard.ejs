@@ -524,7 +524,7 @@
                     <a class="nav-link" href="/admin/orders">Orders</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin/analytics">Analytics</a>
+                    <a class="nav-link" href="/adminAnayltics">Analytics</a>
                 </li>
             </ul>
         </div>
@@ -559,7 +559,7 @@
                     <div class="stat-icon">
                         <i class="fas fa-leaf"></i>
                     </div>
-                    <div class="stat-value">53%</div>
+                    <div class="stat-value"><%=carbons%> KG</div>
                     <div class="stat-label">Carbon Reduction</div>
                 </div>
             </div>
@@ -595,53 +595,29 @@
                             Analytics Dashboard
                         </h5>
                         <p class="card-text">View detailed analytics about sales, carbon footprint metrics, and sustainability impact.</p>
-                        <a href="/admin/analytics" class="btn btn-primary">View Analytics</a>
+                        <a href="/adminAnayltics" class="btn btn-primary">View Analytics</a>
                     </div>
                 </div>
             </div>
 
             <!-- Recent Activity -->
             <div class="recent-activity">
-                <h2 class="section-title">Recent Activity</h2>
+                <h2 class="section-title">Recent Purchases</h2>
                 <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon icon-add">
-                            <i class="fas fa-plus"></i>
+                    <% recentPurchases.forEach(p => { %>
+                        <div class="activity-item">
+                            <div class="activity-icon icon-purchase">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p><strong><%= p.username %></strong> purchased <strong><%= p.productName %></strong></p>
+                                <div class="activity-time"><%= new Date(p.purchasedAt).toLocaleString() %></div>
+                            </div>
                         </div>
-                        <div class="activity-content">
-                            <p><strong>Bamboo Water Bottle</strong> was added to inventory</p>
-                            <div class="activity-time">Today, 14:35</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon icon-edit">
-                            <i class="fas fa-edit"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Eco-friendly Yoga Mat</strong> details were updated</p>
-                            <div class="activity-time">Today, 11:20</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon icon-delete">
-                            <i class="fas fa-trash"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Plastic Straw Alternative</strong> was removed from catalog</p>
-                            <div class="activity-time">Yesterday, 16:45</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon icon-add">
-                            <i class="fas fa-plus"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Reusable Shopping Bag</strong> was added to inventory</p>
-                            <div class="activity-time">Yesterday, 09:15</div>
-                        </div>
-                    </div>
+                    <% }) %>
                 </div>
             </div>
+            
         </div>
     </div>
 

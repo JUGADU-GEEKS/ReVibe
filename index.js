@@ -71,15 +71,15 @@ app.get('/verifyotp', (req, res) => {
 
     res.render('verifyotp', { error: null }); // Render with no error initially
 });
-app.get('/leaderboard',isLoggedIn, async(req,res)=>{
+app.get('/leaderboard', isLoggedIn, async (req, res) => {
     const users = await User.find().sort({ carbonSaved: -1 });
-    const user = await User.findOne({email:req.user.email})
+    const user = await User.findOne({ email: req.user.email })
     // Check if user and user.cart exist
     let count = 0;
     if (user && Array.isArray(user.cart)) {
         count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
     }
-    res.render('leaderboard', { users ,count});
+    res.render('leaderboard', { users, count });
 })
 app.get('/resendotp', async (req, res) => {
     const sessionUser = req.session.user;
@@ -139,44 +139,83 @@ app.get('/adminLogin', (req, res) => {
 })
 
 // Admin Panel Routes
-app.get('/admin/dashboard', isAdmin, async(req, res) => {
+app.get('/admin/dashboard', isAdmin, async (req, res) => {
     const cprod = await Product.countDocuments({});
     const cUser = await User.countDocuments({});
-    res.render('admin/dashboard', {cprod, cUser});
+    let carbons = 0;
+
+    const products = await Product.find({}); // Get all products
+
+    products.forEach(product => {
+        carbons += product.carbonFootprint || 0; // Add carbonFootprint, handle undefined/null
+    });
+
+    const users = await User.find({ 'purchased.0': { $exists: true } }) // only users with purchases
+        .populate('purchased.product', 'name') // populate product name only
+        .select('fullname purchased') // fetch only what's needed
+        .lean();
+
+    // flattening for easier rendering
+    const recentPurchases = [];
+    users.forEach(user => {
+        user.purchased.forEach(purchase => {
+            if (purchase.product) {
+                recentPurchases.push({
+                    username: user.fullname,
+                    productName: purchase.product.name,
+                    purchasedAt: purchase.purchasedAt
+                });
+            }
+        });
+    });
+
+    // Sort by recent date (optional)
+    recentPurchases.sort((a, b) => new Date(b.purchasedAt) - new Date(a.purchasedAt));
+
+    console.log("Total Products:", cprod);
+    console.log("Total Users:", cUser);
+    console.log("Total Carbon Footprint:", carbons);
+    return res.render('admin/dashboard', { cprod, cUser, carbons, recentPurchases})
+
 });
 
 app.get('/admin/products/add', isAdmin, (req, res) => {
     res.render('admin/add-product');
 });
 
-app.get('/analytics', (req,res)=>{
-    res.render('analytics')
+app.get('/analytics', isLoggedIn, async (req, res) => {
+    const user = await User.findOne({ email: req.user.email }).populate('cart.product');
+    // Check if user and user.cart exist
+    let count = 0;
+    if (user && Array.isArray(user.cart)) {
+        count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+    } res.render('analytics', { count })
 })
 // controllers/cartController.js or inside your routes
-app.get('/cart',isLoggedIn, async (req, res) => {
+app.get('/cart', isLoggedIn, async (req, res) => {
     try {
-      const user = await User.findOne({ email: req.user.email }).populate('cart.product');
-      // Check if user and user.cart exist
-      let count = 0;
-      if (user && Array.isArray(user.cart)) {
-          count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
-      }
-      res.render('cart', { cartItems: user.cart, count });
+        const user = await User.findOne({ email: req.user.email }).populate('cart.product');
+        // Check if user and user.cart exist
+        let count = 0;
+        if (user && Array.isArray(user.cart)) {
+            count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+        }
+        res.render('cart', { cartItems: user.cart, count });
     } catch (err) {
-      console.error(err);
-      res.status(500).send("Error fetching cart");
+        console.error(err);
+        res.status(500).send("Error fetching cart");
     }
-  });
+});
 
-  app.post('/cart/remove',isLoggedIn, async (req, res) => {
+app.post('/cart/remove', isLoggedIn, async (req, res) => {
     const { productId } = req.body;
     await User.updateOne(
-      { email: req.user.email },
-      { $pull: { cart: { product: productId } } }
+        { email: req.user.email },
+        { $pull: { cart: { product: productId } } }
     );
     res.redirect('/cart');
-  });
-  
+});
+
 
 app.post('/admin/products', isAdmin, upload.single('image'), async (req, res) => {
     try {
@@ -208,8 +247,8 @@ app.get('/admin/products', isAdmin, async (req, res) => {
         res.status(500).send('Error fetching products');
     }
 });
-app.get('/profile', isLoggedIn, async(req,res)=>{
-    const user = await User.findOne({email:req.user.email});
+app.get('/profile', isLoggedIn, async (req, res) => {
+    const user = await User.findOne({ email: req.user.email });
     const userC = await User.findOne({ email: req.user.email }).populate('cart.product');
     const userP = await User.findOne({ email: req.user.email }).populate('purchased.product');
     // Check if user and user.cart exist
@@ -217,7 +256,7 @@ app.get('/profile', isLoggedIn, async(req,res)=>{
     if (user && Array.isArray(user.cart)) {
         count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
     }
-    res.render('profile', {user, count, cartItems: userC.cart, purchasedItems: userP.purchased})
+    res.render('profile', { user, count, cartItems: userC.cart, purchasedItems: userP.purchased })
 })
 
 //POST Requests Routes
@@ -400,7 +439,41 @@ app.post('/adminLogin', async (req, res) => {
 
             const cprod = await Product.countDocuments({});
             const cUser = await User.countDocuments({});
-            return res.render('admin/dashboard', { cprod, cUser });
+
+            let carbons = 0;
+
+            const products = await Product.find({}); // Get all products
+
+            products.forEach(product => {
+                carbons += product.carbonFootprint || 0; // Add carbonFootprint, handle undefined/null
+            });
+            const users = await User.find({ 'purchased.0': { $exists: true } }) // only users with purchases
+                .populate('purchased.product', 'name') // populate product name only
+                .select('fullname purchased') // fetch only what's needed
+                .lean();
+
+            // flattening for easier rendering
+            const recentPurchases = [];
+            users.forEach(user => {
+                user.purchased.forEach(purchase => {
+                    if (purchase.product) {
+                        recentPurchases.push({
+                            username: user.fullname,
+                            productName: purchase.product.name,
+                            purchasedAt: purchase.purchasedAt
+                        });
+                    }
+                });
+            });
+
+            // Sort by recent date (optional)
+            recentPurchases.sort((a, b) => new Date(b.purchasedAt) - new Date(a.purchasedAt));
+
+            console.log("Total Products:", cprod);
+            console.log("Total Users:", cUser);
+            console.log("Total Carbon Footprint:", carbons);
+            return res.render('admin/dashboard', { cprod, cUser, carbons, recentPurchases})
+
         }
 
         res.render('adminLogin', { error: 'Invalid credentials' });
@@ -409,6 +482,9 @@ app.post('/adminLogin', async (req, res) => {
         res.render('adminLogin', { error: 'Something went wrong. Please try again.' });
     }
 });
+app.get('/adminAnayltics', (req,res)=>{
+    res.render('adminAnalytics')
+})
 
 // Add to cart route
 app.post('/cart/add', isLoggedIn, async (req, res) => {
@@ -536,7 +612,7 @@ app.post('/process-payment', isLoggedIn, async (req, res) => {
         user.cart = [];
         await user.save();
 
-        res.json({ 
+        res.json({
             message: 'Dummy Payment successful! Products added to your purchases.',
             totalCarbonFootprint: user.totalCarbonFootprint
         });

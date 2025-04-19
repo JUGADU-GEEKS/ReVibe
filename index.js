@@ -71,6 +71,16 @@ app.get('/verifyotp', (req, res) => {
 
     res.render('verifyotp', { error: null }); // Render with no error initially
 });
+app.get('/leaderboard',isLoggedIn, async(req,res)=>{
+    const users = await User.find().sort({ carbonSaved: -1 });
+    const user = await User.findOne({email:req.user.email})
+    // Check if user and user.cart exist
+    let count = 0;
+    if (user && Array.isArray(user.cart)) {
+        count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+    }
+    res.render('leaderboard', { users ,count});
+})
 app.get('/resendotp', async (req, res) => {
     const sessionUser = req.session.user;
 
@@ -129,8 +139,10 @@ app.get('/adminLogin', (req, res) => {
 })
 
 // Admin Panel Routes
-app.get('/admin/dashboard', isAdmin, (req, res) => {
-    res.render('admin/dashboard');
+app.get('/admin/dashboard', isAdmin, async(req, res) => {
+    const cprod = await Product.countDocuments({});
+    const cUser = await User.countDocuments({});
+    res.render('admin/dashboard', {cprod, cUser});
 });
 
 app.get('/admin/products/add', isAdmin, (req, res) => {
@@ -168,12 +180,13 @@ app.get('/cart',isLoggedIn, async (req, res) => {
 
 app.post('/admin/products', isAdmin, upload.single('image'), async (req, res) => {
     try {
-        const { name, material, price } = req.body;
+        const { name, material, type, price } = req.body;
         const imagePath = req.file ? '/uploads/' + req.file.filename : '';
 
         const product = new Product({
             name,
             material,
+            type,
             image: imagePath,
             price: parseFloat(price)
         });
@@ -195,6 +208,17 @@ app.get('/admin/products', isAdmin, async (req, res) => {
         res.status(500).send('Error fetching products');
     }
 });
+app.get('/profile', isLoggedIn, async(req,res)=>{
+    const user = await User.findOne({email:req.user.email});
+    const userC = await User.findOne({ email: req.user.email }).populate('cart.product');
+    const userP = await User.findOne({ email: req.user.email }).populate('purchased.product');
+    // Check if user and user.cart exist
+    let count = 0;
+    if (user && Array.isArray(user.cart)) {
+        count = user.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+    }
+    res.render('profile', {user, count, cartItems: userC.cart, purchasedItems: userP.purchased})
+})
 
 //POST Requests Routes
 
@@ -374,15 +398,15 @@ app.post('/adminLogin', async (req, res) => {
                 email: email
             };
 
-            return res.render('admin/dashboard.ejs')
+            const cprod = await Product.countDocuments({});
+            const cUser = await User.countDocuments({});
+            return res.render('admin/dashboard', { cprod, cUser });
         }
 
-
-
-        res.redirect('/admin/dashboard');
+        res.render('adminLogin', { error: 'Invalid credentials' });
     } catch (error) {
         console.error('Admin login error:', error);
-        res.render('adminLogin', { error: 'Something went wrong' });
+        res.render('adminLogin', { error: 'Something went wrong. Please try again.' });
     }
 });
 

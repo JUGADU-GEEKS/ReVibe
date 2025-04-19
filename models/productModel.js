@@ -12,6 +12,12 @@ const productSchema = new mongoose.Schema({
         enum: ['cotton', 'polyester', 'wool', 'silk', 'leather', 'denim', 'nylon'],
         trim: true
     },
+    type:{
+        type:String,
+        required: [true, 'Type is required'],
+        enum: ['recycled', 'upcycled'],
+        trim:true
+    },
     image: {
         type: String,
         required: [true, 'Product image is required']

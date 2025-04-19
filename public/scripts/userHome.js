@@ -77,7 +77,8 @@ function createProductCard(product) {
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-material">Material: ${product.material}</p>
-            <div class="product-price">$${product.price.toFixed(2)}</div>
+            <p class="product-material">${product.type}</p>
+            <div class="product-price">₹${product.price.toFixed(2)}</div>
             <button class="add-to-cart" data-product-id="${product._id}">Add to Cart</button>
         </div>
     `;
@@ -142,3 +143,110 @@ function resetCardTransform(e) {
 document.body.querySelector('.cart-btn').addEventListener('click', ()=>{
     window.location.href='/cart'
 })
+
+// Footer animations
+document.addEventListener('DOMContentLoaded', () => {
+    // Existing code...
+    
+    // Add footer animations
+    gsap.from('.footer-logo', {
+      scrollTrigger: {
+        trigger: '.site-footer',
+        start: 'top bottom-=100',
+        toggleActions: 'play none none none'
+      },
+      y: 30,
+      opacity: 0,
+      duration: 0.8
+    });
+    
+    gsap.from('.footer-column', {
+      scrollTrigger: {
+        trigger: '.site-footer',
+        start: 'top bottom-=100',
+        toggleActions: 'play none none none'
+      },
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.2
+    });
+    
+    gsap.from('.footer-newsletter', {
+      scrollTrigger: {
+        trigger: '.site-footer',
+        start: 'top bottom-=100',
+        toggleActions: 'play none none none'
+      },
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      delay: 0.4
+    });
+    
+    gsap.from('.certification-badge', {
+      scrollTrigger: {
+        trigger: '.footer-middle',
+        start: 'top bottom-=50',
+        toggleActions: 'play none none none'
+      },
+      scale: 0.8,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.2
+    });
+    
+    // Form submission animation
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+      newsletterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const input = this.querySelector('input');
+        const value = input.value.trim();
+        
+        if (value) {
+          // Animate the button
+          gsap.to(this.querySelector('.btn-subscribe'), {
+            scale: 1.1,
+            duration: 0.2,
+            onComplete: () => {
+              gsap.to(this.querySelector('.btn-subscribe'), {
+                scale: 1,
+                duration: 0.2
+              });
+            }
+          });
+          
+          // Show success message
+          input.value = '';
+          
+          const successMsg = document.createElement('p');
+          successMsg.className = 'success-message';
+          successMsg.textContent = 'Thank you for subscribing!';
+          successMsg.style.color = '#4caf50';
+          successMsg.style.fontSize = '0.9rem';
+          successMsg.style.marginTop = '0.5rem';
+          successMsg.style.opacity = '0';
+          
+          this.appendChild(successMsg);
+          
+          gsap.to(successMsg, {
+            opacity: 1,
+            duration: 0.5,
+            onComplete: () => {
+              setTimeout(() => {
+                gsap.to(successMsg, {
+                  opacity: 0,
+                  duration: 0.5,
+                  onComplete: () => {
+                    successMsg.remove();
+                  }
+                });
+              }, 3000);
+            }
+          });
+        }
+      });
+    }
+  });

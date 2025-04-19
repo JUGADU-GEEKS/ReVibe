@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | EcoShop</title>
+    <style>
+        :root {
+            --dark-bg: #0f0f13;
+            --dark-card: #1a1a22;
+            --accent-green: #4caf50;
+            --accent-teal: #009688;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --input-bg: #252530;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: background-color 0.3s;
+            background-color: rgba(15, 15, 19, 0.8);
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaf-icon {
+            color: var(--accent-green);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-green);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            position: relative;
+            font-size: 1.2rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-green);
+            color: white;
+            font-size: 0.8rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Profile Page Styles */
+        .profile-page {
+            padding-top: 120px;
+            padding-bottom: 5rem;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .profile-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .profile-sidebar {
+            background: var(--dark-card);
+            border-radius: 15px;
+            padding: 2rem;
+            height: fit-content;
+        }
+
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--accent-green);
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-details {
+            margin-top: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .detail-icon {
+            color: var(--accent-green);
+            font-size: 1.2rem;
+        }
+
+        .carbon-stats {
+            background: linear-gradient(145deg, #1d1d27, #14141c);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .carbon-stats h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-green);
+        }
+
+        .carbon-stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .carbon-stat-item .label {
+            color: var(--text-secondary);
+        }
+
+        .carbon-stat-item .value {
+            font-weight: bold;
+        }
+
+        .edit-profile-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .edit-profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .profile-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section-card {
+            background: var(--dark-card);
+            border-radius: 15px;
+            padding: 2rem;
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            color: var(--accent-green);
+        }
+
+        .cart-items {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 2fr 1fr 1fr auto;
+            align-items: center;
+            padding: 1.2rem;
+            background: rgba(30, 30, 40, 0.6);
+            border-radius: 8px;
+            gap: 1.5rem;
+        }
+
+        .cart-item-img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .cart-item-name {
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+
+        .cart-item-carbon {
+            color: var(--accent-green);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .cart-item-price {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .quantity-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ff5252;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .cart-summary {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .eco-impact {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-green);
+        }
+
+        .checkout-btn {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .order-history-items {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .order-item {
+            background: rgba(30, 30, 40, 0.6);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order-id {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .order-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-delivered {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--accent-green);
+        }
+
+        .status-processing {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .order-products {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .order-product {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+            max-width: 100px;
+        }
+
+        .order-product img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-product-name {
+            font-size: 0.8rem;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order-total {
+            font-weight: bold;
+        }
+
+        .order-carbon {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-green);
+            font-size: 0.9rem;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .order-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-track {
+            background: var(--input-bg);
+            border: none;
+            color: var(--text-primary);
+        }
+
+        .btn-track:hover {
+            background: rgba(37, 37, 48, 0.8);
+        }
+
+        .btn-review {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .btn-review:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Progress bar */
+        .carbon-progress {
+            width: 100%;
+            height: 6px;
+            background-color: var(--input-bg);
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carbon-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-teal));
+            border-radius: 3px;
+            width: 65%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-item {
+                grid-template-columns: 90px 1fr 1fr;
+                grid-template-rows: auto auto;
+                gap: 1rem;
+            }
+            
+            .cart-item-img {
+                grid-row: span 2;
+            }
+            
+            .cart-item-quantity {
+                grid-column: 2;
+                grid-row: 2;
+            }
+            
+            .cart-item-price,
+            .remove-btn {
+                grid-row: 2;
+                grid-column: 3;
+                justify-self: end;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .order-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        /* 3D Scene */
+        .scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .cube {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            transform-style: preserve-3d;
+            opacity: 0.1;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--accent-green);
+            backface-visibility: visible;
+        }
+
+        .front { transform: translateZ(50px); }
+        .back { transform: rotateY(180deg) translateZ(50px); }
+        .right { transform: rotateY(90deg) translateZ(50px); }
+        .left { transform: rotateY(-90deg) translateZ(50px); }
+        .top { transform: rotateX(90deg) translateZ(50px); }
+        .bottom { transform: rotateX(-90deg) translateZ(50px); }
+
+        .glow {
+            position: fixed;
+            width: 50vw;
+            height: 50vh;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, rgba(15, 15, 19, 0) 70%);
+            filter: blur(50px);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13A7 7 0 0 1 4 6A7 7 0 0 1 11 4A7 7 0 0 1 11 20Z"></path>
+                    <path d="M18 6C18 7 17 8 16 8S14 7 14 6 15 4 16 4 18 5 18 6Z"></path>
+                    <path d="M18 14C18 15 17 16 16 16S14 15 14 14 15 12 16 12 18 13 18 14Z"></path>
+                    <path d="M6 18C6 19 5 20 4 20S2 19 2 18 3 16 4 16 6 17 6 18Z"></path>
+                </svg>
+                <span>ReVibe</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/home" class="active">Home</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <li><a href="#">About Us</a></li>
+            </ul>
+            <div class="nav-icons">
+                <button class="icon-btn"><i class="search-icon">🔍</i></button>
+                <button class="icon-btn"><i class="user-icon">👤</i></button>
+                <button class="icon-btn cart-btn">
+                    <i class="cart-icon">🛒</i>
+                    <span class="cart-count"><%= count %></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Page Content -->
+    <section class="profile-page">
+        <div class="container">
+            <div class="profile-header">
+                <h1>My Profile</h1>
+            </div>
+
+            <div class="profile-content">
+                <!-- Sidebar with User Info -->
+                <div class="profile-sidebar">
+                    <div class="avatar-container">
+                        <% const avatarNum = Math.floor(Math.random() * 3) + 1; %>
+                        <img src="/ppimages/<%= avatarNum %>.jpg" alt="User Avatar" class="avatar">
+                        
+                        <h2 class="user-name"><%=user.fullname%></h2>
+                        <span>Eco Enthusiast</span>
+                    </div>
+
+                    <div class="user-details">
+                        <div class="detail-item">
+                            <i class="fas fa-envelope detail-icon"></i>
+                            <span><%=user.email%></span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt detail-icon"></i>
+                            <span>We are very delighted to have you here!</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar detail-icon"></i>
+                            <span>Member since <%=user.createdAt%></span>
+                        </div>
+                    </div>
+
+                    <div class="carbon-stats">
+                        <h3>Your Carbon Impact</h3>
+                        <div class="carbon-stat-item">
+                            <span class="label">Total Savings</span>
+                            <span class="value"><%=user.totalCarbonFootprints%> kg CO₂</span>
+                        </div>
+                        <div class="carbon-stat-item">
+                            <span class="label">Trees Planted</span>
+                            <%t = user.totalCarbonFootprints/2%>
+                            <span class="value"><%=t%></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="profile-main">
+                    <!-- Shopping Cart Section -->
+                    <div class="section-card">
+                        <h3 class="section-title">
+                            <i class="fas fa-shopping-cart"></i>
+                            My Cart (<%=count%> items)
+                        </h3>
+
+                        <div class="cart-items">
+                            <% if (cartItems && cartItems.length > 0) { %>
+                                <% cartItems.forEach(item => { %>
+                                  <div class="cart-item">
+                                      <img src="<%= item.product.image || '/api/placeholder/90/90' %>" alt="<%= item.product.name %>" class="cart-item-img">
+                                      <div class="cart-item-info">
+                                          <div class="cart-item-name"><%= item.product.name %></div>
+                                          <div class="cart-item-carbon">
+                                              <i class="fas fa-leaf"></i> 
+                                              <%= item.product.carbonFootprint >= 0 ? '+' : '' %><%= item.product.carbonFootprint %> kg CO₂
+                                          </div>
+                                      </div>
+                                      <div class="cart-item-price">$<%= item.product.price %></div>
+                                      <div class="cart-item-quantity">
+                                          <span><%= item.quantity || 1 %></span>
+                                      </div>
+                                  </div>
+                                <% }) %>
+                              <% } else { %>
+                                <div class="cart-item">No items</div>
+                              <% } %>
+                        </div>
+
+                        <div class="cart-summary">
+                            <div class="summary-left">
+                                <% let totalPrice = 0; %>
+                        <% cartItems.forEach(item => {
+                            const itemTotal = (item.product.price || 0) * (item.quantity || 0);
+                            totalPrice += itemTotal;
+                        }); %>
+                                <div class="subtotal">Subtotal: <strong><%= totalPrice %></strong></div>
+                                <div class="eco-impact">
+                                    <i class="fas fa-seedling"></i>
+                                    Total Carbon Savings: <strong><%=user.totalCarbonFootprint%> kg CO₂</strong>
+                                </div>
+                            </div>
+                            <button class="checkout-btn">Proceed to Checkout</button>
+                        </div>
+                    </div>
+
+                    <!-- Order History Section -->
+                    <div class="section-card">
+                        <h3 class="section-title">
+                            <i class="fas fa-history"></i>
+                            Order History
+                        </h3>
+
+                        <div class="order-history-items">
+                            <div class="order-item">
+                                <div class="order-products">
+                                  <% if (purchasedItems && purchasedItems.length > 0) { %>
+                                    <% purchasedItems.forEach(item => { %>
+                                      <div class="order-product">
+                                        <img src="<%= item.product.image || '/api/placeholder/80/80' %>" alt="<%= item.product.name %>">
+                                        <div class="order-product-name"><%= item.product.name %></div>
+                                      </div>
+                                    <% }) %>
+                                  <% } else { %>
+                                    <div class="order-product">No purchases yet</div>
+                                  <% } %>
+                                </div>
+                              </div>
+                              
+
+                                <div class="order-footer">
+                                    <% 
+                                        let totalP = 0;
+                                        let totalCarbonSaved = 0;
+                                        if (user.purchased && user.purchased.length > 0) {
+                                            user.purchased.forEach(product => {
+                                                totalP += product.price || 0;
+                                                totalCarbonSaved += product.carbonFootprint || 0;
+                                            });
+                                        }
+                                    %>
+
+<% if (user.purchased && user.purchased.length > 0) { %>
+<div>
+    <div class="order-total">Total: $<%= totalP.toFixed(2) %></div>
+    <div class="order-carbon">
+        <i class="fas fa-leaf"></i>
+        Carbon Saved: <%= totalCarbonSaved.toFixed(1) %> kg CO₂
+    </div>
+</div>
+<% } %>
+
+                                </div>
+                            </div>
+
+            <script>
+                document.body.querySelector('.checkout-btn').addEventListener('click',()=>{
+                    window.location.href='/cart'
+                })
+            </script>
